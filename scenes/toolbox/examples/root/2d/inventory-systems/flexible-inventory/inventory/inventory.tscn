@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3 uid="uid://dyo0ds05v4xl5"]
+
+[ext_resource type="Script" path="res://scenes/toolbox/examples/root/2d/inventory-systems/flexible-inventory/inventory/inventory.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://degb3kysqk8uh" path="res://scenes/toolbox/examples/root/2d/inventory-systems/flexible-inventory/assets/inventory-nine-patch-background.png" id="2"]
+
+[node name="Inventory" type="Node2D"]
+scale = Vector2(2, 2)
+script = ExtResource("1")
+
+[node name="BackgroundNinePatchRect" type="NinePatchRect" parent="."]
+offset_right = 17.0
+offset_bottom = 15.0
+mouse_filter = 1
+texture = ExtResource("2")
+patch_margin_left = 5
+patch_margin_top = 5
+patch_margin_right = 5
+patch_margin_bottom = 5
+
+[node name="InventoryGrid" type="GridContainer" parent="BackgroundNinePatchRect"]
+layout_mode = 0
+mouse_filter = 2
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 4
+columns = 5
+
+[connection signal="gui_input" from="BackgroundNinePatchRect" to="." method="_on_BackgroundNinePatchRect_gui_input"]

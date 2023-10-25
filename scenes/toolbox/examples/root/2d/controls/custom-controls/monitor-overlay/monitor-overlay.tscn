@@ -1,0 +1,86 @@
+[gd_scene load_steps=2 format=3 uid="uid://c78frd23xoxge"]
+
+[ext_resource type="Script" path="res://addons/monitor_overlay/monitor_overlay.gd" id="1"]
+
+[node name="MonitorOverlay" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="InstructionLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "- Plugin By: HungryProton
+- License: MIT
+
+- You can resize, position and style as you see fit. I used the defaults.
+- This is a runtime plugin (not an editor plugin). It adds a custom control node called MonitorOverlay that you add to your scene like any other.
+- Scroll to see all outputs
+- Tip: Once you get the plugin added to your project (follow instructions on github), you just go into Project Settings -> Plugins and tick 'Enable'.  "
+autowrap_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 25
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 50
+
+[node name="MonitorOverlay" type="VBoxContainer" parent="MarginContainer/VBoxContainer/ScrollContainer/MarginContainer"]
+custom_minimum_size = Vector2(600, 0)
+layout_mode = 2
+script = ExtResource("1")
+process = true
+physics_process = true
+static_memory = true
+dynamic_memory = true
+max_static_memory = true
+max_dynamic_memory = true
+max_message_buffer = true
+objects = true
+resources = true
+nodes = true
+orphan_nodes = true
+objects_drawn = true
+vertices_drawn = true
+material_changes = true
+shader_changes = true
+surface_changes = true
+draw_calls_3d = true
+items_2d = true
+draw_calls_2d = true
+video_memory = true
+texture_memory = true
+vertex_memory = true
+max_video_memory = true
+active_objects_2d = true
+collision_pairs_2d = true
+islands_2d = true
+active_objects_3d = true
+collision_pairs_3d = true
+islands_3d = true
+audio_output_latency = true

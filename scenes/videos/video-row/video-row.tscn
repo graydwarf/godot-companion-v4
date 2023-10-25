@@ -1,0 +1,102 @@
+[gd_scene load_steps=7 format=3 uid="uid://cqf2njx2ll60s"]
+
+[ext_resource type="Script" path="res://scenes/videos/video-row/video-row.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://du4x68t6mphfk" path="res://assets/icons/youtube-32x32-2.png" id="2"]
+[ext_resource type="FontFile" uid="uid://ddxewvwi3yjgk" path="res://assets/fonts/montreal/Montreal-Regular.ttf" id="5"]
+
+[sub_resource type="Theme" id="Theme_damqd"]
+
+[sub_resource type="FontFile" id="1"]
+resource_local_to_scene = true
+fallbacks = Array[Font]([ExtResource("5")])
+cache/0/16/0/ascent = 0.0
+cache/0/16/0/descent = 0.0
+cache/0/16/0/underline_position = 0.0
+cache/0/16/0/underline_thickness = 0.0
+cache/0/16/0/scale = 1.0
+cache/0/16/0/kerning_overrides/16/0 = Vector2(0, 0)
+
+[sub_resource type="CompressedTexture2D" id="2"]
+
+[node name="VideoRow" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1")
+
+[node name="RowBackground" type="ColorRect" parent="."]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 0.064
+offset_right = -2.0
+offset_bottom = -6.4
+size_flags_horizontal = 3
+theme = SubResource("Theme_damqd")
+color = Color(0.0784314, 0.0784314, 0.0784314, 1)
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 0
+anchor_right = 1.0
+offset_right = -2.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+
+[node name="Control" type="Control" parent="HBoxContainer"]
+custom_minimum_size = Vector2(40, 32)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="YouTubeSprite" type="Sprite2D" parent="HBoxContainer/Control"]
+texture = ExtResource("2")
+offset = Vector2(20, 15)
+
+[node name="VideoTitleLabel" type="Label" parent="HBoxContainer"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = SubResource("1")
+text = "This is some example text for a title [3.x] [3D]"
+vertical_alignment = 1
+clip_text = true
+
+[node name="CenterContainer" type="CenterContainer" parent="HBoxContainer"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/CenterContainer"]
+layout_mode = 2
+
+[node name="DimensionTextureButton" type="TextureButton" parent="HBoxContainer/CenterContainer/HBoxContainer"]
+visible = false
+layout_mode = 2
+texture_normal = SubResource("2")
+
+[node name="GodotVersionTextureButton" type="TextureButton" parent="HBoxContainer/CenterContainer/HBoxContainer"]
+visible = false
+layout_mode = 2
+
+[node name="CodeTypeTextureButton" type="TextureButton" parent="HBoxContainer/CenterContainer/HBoxContainer"]
+visible = false
+layout_mode = 2
+
+[node name="RowForeground" type="ColorRect" parent="."]
+self_modulate = Color(0.188235, 0.184314, 0.184314, 1)
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 0
+anchor_right = 1.0
+offset_right = -2.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+color = Color(1, 1, 1, 0)
+
+[connection signal="gui_input" from="HBoxContainer/VideoTitleLabel" to="." method="_on_VideoTitleLabel_gui_input"]
+[connection signal="gui_input" from="RowForeground" to="." method="_on_RowForeground_gui_input"]
+[connection signal="mouse_exited" from="RowForeground" to="." method="_on_row_foreground_mouse_exited"]

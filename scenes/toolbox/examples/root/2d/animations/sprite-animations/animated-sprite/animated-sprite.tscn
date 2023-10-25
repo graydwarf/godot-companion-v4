@@ -1,0 +1,66 @@
+[gd_scene load_steps=13 format=3 uid="uid://bacvj4lcdb5xo"]
+
+[ext_resource type="Texture2D" uid="uid://duh42cfojcuwt" path="res://scenes/toolbox/examples/root/2d/animations/sprite-animations/animated-sprite/assets/run-5.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://3jsnppe1jsgx" path="res://scenes/toolbox/examples/root/2d/animations/sprite-animations/animated-sprite/assets/run-6.png" id="2"]
+[ext_resource type="Script" path="res://scenes/toolbox/examples/root/2d/animations/sprite-animations/animated-sprite/animated-sprite.gd" id="3"]
+[ext_resource type="Texture2D" uid="uid://cebqny265y0sk" path="res://scenes/toolbox/examples/root/2d/animations/sprite-animations/animated-sprite/assets/run-7.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://bxg2y5jf5nef1" path="res://scenes/toolbox/examples/root/2d/animations/sprite-animations/animated-sprite/assets/run-8.png" id="5"]
+[ext_resource type="Texture2D" uid="uid://ygbtwkyf40k6" path="res://scenes/toolbox/examples/root/2d/animations/sprite-animations/animated-sprite/assets/run-4.png" id="6"]
+[ext_resource type="Texture2D" uid="uid://c822n8usvshvq" path="res://scenes/toolbox/examples/root/2d/animations/sprite-animations/animated-sprite/assets/run-2.png" id="7"]
+[ext_resource type="Texture2D" uid="uid://ck6f642b5qpnx" path="res://scenes/toolbox/examples/root/2d/animations/sprite-animations/animated-sprite/assets/run-1.png" id="8"]
+[ext_resource type="Texture2D" uid="uid://cxdjh2nab745a" path="res://scenes/toolbox/examples/root/2d/animations/sprite-animations/animated-sprite/assets/run-3.png" id="9"]
+[ext_resource type="PackedScene" uid="uid://mr2e8uay5vds" path="res://scenes/toolbox/examples/common-support/keyboard-hud/keyboard-hud.tscn" id="10"]
+
+[sub_resource type="SpriteFrames" id="1"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5")
+}],
+"loop": true,
+"name": &"run",
+"speed": 10.0
+}]
+
+[sub_resource type="RectangleShape2D" id="2"]
+size = Vector2(19, 31)
+
+[node name="animated-sprite" type="CharacterBody2D"]
+position = Vector2(0, -128)
+scale = Vector2(2, 2)
+script = ExtResource("3")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(113, 131)
+sprite_frames = SubResource("1")
+animation = &"run"
+frame = 1
+
+[node name="KeyboardKeys" parent="." instance=ExtResource("10")]
+position = Vector2(63.8999, 220.954)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+visible = false
+position = Vector2(112, 137)
+shape = SubResource("2")

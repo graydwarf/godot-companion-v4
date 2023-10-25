@@ -1,0 +1,28 @@
+[gd_scene load_steps=5 format=3 uid="uid://c4w4w0qdryrnf"]
+
+[ext_resource type="Texture2D" uid="uid://bpkbicj022mkx" path="res://assets/particles/dust-01.png" id="1"]
+
+[sub_resource type="Curve" id="1"]
+_data = [Vector2(0.00890208, 0.682692), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="2"]
+curve = SubResource("1")
+
+[sub_resource type="ParticleProcessMaterial" id="3"]
+lifetime_randomness = 0.3
+direction = Vector3(-1000, 0, 0)
+spread = 2.95
+gravity = Vector3(-10, -25, 0)
+scale_curve = SubResource("2")
+color = Color(1, 1, 1, 0.666667)
+
+[node name="GPUParticles2D" type="GPUParticles2D"]
+position = Vector2(2.99664, 200.773)
+scale = Vector2(4, 4)
+amount = 14
+sub_emitter = NodePath(".")
+process_material = SubResource("3")
+texture = ExtResource("1")
+lifetime = 5.0
+randomness = 1.0

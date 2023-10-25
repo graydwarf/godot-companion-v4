@@ -1,0 +1,28 @@
+[gd_scene load_steps=2 format=3 uid="uid://dsdgiof5exmvf"]
+
+[ext_resource type="Script" path="res://scenes/toolbox/examples/root/2d/dialogs/confirmation-dialog/confirmation-dialog.gd" id="1"]
+
+[node name="Confirmation Dialog" type="Node2D"]
+script = ExtResource("1")
+
+[node name="ResponseLabel" type="Label" parent="."]
+custom_minimum_size = Vector2(200, 40)
+offset_left = 134.0
+offset_top = 4.0
+offset_right = 334.0
+offset_bottom = 44.0
+
+[node name="OpenDialogButton" type="Button" parent="."]
+custom_minimum_size = Vector2(100, 40)
+text = "Open Dialog"
+
+[node name="ConfirmationDialog" type="ConfirmationDialog" parent="."]
+position = Vector2i(500, 350)
+size = Vector2i(400, 175)
+ok_button_text = "YES!"
+dialog_text = "Do you accept the 30 page long cryptic legal document which binds and traps you into unfair terms and conditions in exchange for your soul so you can play a game? "
+dialog_autowrap = true
+
+[connection signal="pressed" from="OpenDialogButton" to="." method="_on_OpenDialogButton_pressed"]
+[connection signal="canceled" from="ConfirmationDialog" to="." method="_on_confirmation_dialog_canceled"]
+[connection signal="confirmed" from="ConfirmationDialog" to="." method="_on_ConfirmationDialog_confirmed"]

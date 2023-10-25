@@ -1,0 +1,350 @@
+[gd_scene load_steps=5 format=3 uid="uid://bce0ll3s1641g"]
+
+[ext_resource type="Texture2D" uid="uid://cangrsypkoasx" path="res://assets/landing-screen/boss.png" id="1"]
+[ext_resource type="Script" path="res://scenes/toolbox/examples/root/2d/shaders/canvas-item/radial-blur/radial-blur.gd" id="2"]
+
+[sub_resource type="Shader" id="3"]
+code = "shader_type canvas_item;
+
+uniform float value : hint_range(-6.283, 6.283, 0.1);
+uniform int quality : hint_range(1, 100, 1);
+
+uniform float occilation_speed : hint_range(0.0, 10.0, 0.1);
+
+uniform float scale_value : hint_range(0.0, 10.0, 0.1);
+
+uniform float xOffset : hint_range(-0.5, 0.5);
+uniform float yOffset : hint_range(-0.5, 0.5);
+
+vec2 rotated(vec2 pos, float rads){
+
+    pos -= vec2(0.5,0.5);
+
+    float tempvecx = pos.x * cos(rads) - pos.y * sin(rads);
+
+    float tempvecy = pos.x * sin(rads) + pos.y * cos(rads);
+
+    vec2 finalvalue = vec2(tempvecx,tempvecy) + vec2(0.5,0.5);
+
+    return finalvalue;
+}
+
+vec2 scale(vec2 uv, float x, float y)
+{
+	mat2 scale = mat2(vec2(x, 0.0), vec2(0.0, y));
+	
+	uv -= 0.5;
+	uv = uv * scale;
+	uv += 0.5;
+	
+	if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0)
+		return uv;
+	
+	return vec2(-20.0*scale_value,-20.0*scale_value);
+}
+
+
+
+
+void fragment(){
+	
+	COLOR = vec4(0,0,0,0);
+	
+	float i = 0.0;
+	for (int j = 0; j < quality; j++ ){
+		i += (value+ sin(TIME*occilation_speed)/2.0 )  /float(quality);
+		
+		COLOR += texture(TEXTURE,scale(rotated(UV,i)+vec2(xOffset/scale_value,yOffset/scale_value), scale_value,scale_value ));
+	}
+	
+	float t = 1.0/float(quality);
+	COLOR *= t;
+	
+	
+}
+
+
+void vertex(){
+
+	VERTEX.y *= scale_value;
+	VERTEX.x *= scale_value;
+}
+"
+
+[sub_resource type="ShaderMaterial" id="2"]
+shader = SubResource("3")
+shader_parameter/value = 0.0
+shader_parameter/quality = 1
+shader_parameter/occilation_speed = 0.0
+shader_parameter/scale_value = 2.5
+shader_parameter/xOffset = 0.25
+shader_parameter/yOffset = 0.25
+
+[node name="Radial Blur" type="Node2D"]
+script = ExtResource("2")
+
+[node name="AboutNode2D" type="Node2D" parent="."]
+position = Vector2(18, 16)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="AboutNode2D"]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="CreatedByLabel" type="Label" parent="AboutNode2D/VBoxContainer"]
+layout_mode = 2
+text = "Shader Created By: deojee"
+
+[node name="ProvidedByLabel" type="Label" parent="AboutNode2D/VBoxContainer"]
+layout_mode = 2
+focus_mode = 2
+text = "Shader Hosted By: godotshaders.com"
+
+[node name="DemoByLabel" type="Label" parent="AboutNode2D/VBoxContainer"]
+layout_mode = 2
+focus_mode = 2
+text = "Shader Demo By: GrayDwarf"
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+material = SubResource("2")
+position = Vector2(126, 207)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1")
+offset = Vector2(80, 82)
+
+[node name="ShaderControls" type="Node2D" parent="."]
+position = Vector2(331, 89)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ShaderControls"]
+custom_minimum_size = Vector2(400, 200)
+offset_top = 1.0
+offset_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 5
+
+[node name="RadianControls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(300, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/RadianControls"]
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="RadiansLabel" type="Label" parent="ShaderControls/VBoxContainer/RadianControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Radians:"
+
+[node name="RadiansHSlider" type="HSlider" parent="ShaderControls/VBoxContainer/RadianControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+min_value = -10.0
+max_value = 10.0
+step = 0.1
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="RadiansLineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/RadianControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "0.0"
+max_length = 5
+caret_blink = true
+
+[node name="QualityControls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/QualityControls"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="QualityLabel" type="Label" parent="ShaderControls/VBoxContainer/QualityControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Quality:"
+
+[node name="QualityHSlider" type="HSlider" parent="ShaderControls/VBoxContainer/QualityControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+min_value = 1.0
+value = 1.0
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="QualityLineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/QualityControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "1"
+max_length = 3
+caret_blink = true
+
+[node name="OccilationSpeedControls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/OccilationSpeedControls"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="OccilationLabel" type="Label" parent="ShaderControls/VBoxContainer/OccilationSpeedControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Occilation:"
+
+[node name="OccilationHSlider" type="HSlider" parent="ShaderControls/VBoxContainer/OccilationSpeedControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+min_value = -1.0
+max_value = 1.0
+step = 0.1
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="OccilationLineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/OccilationSpeedControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "0"
+max_length = 5
+caret_blink = true
+
+[node name="ScaleValueControls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/ScaleValueControls"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="ScaleValueLabel" type="Label" parent="ShaderControls/VBoxContainer/ScaleValueControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Scale:"
+
+[node name="ScaleValueHSlider" type="HSlider" parent="ShaderControls/VBoxContainer/ScaleValueControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+min_value = 0.1
+max_value = 10.0
+step = 0.1
+value = 1.0
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="ScaleValueLineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/ScaleValueControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "1"
+max_length = 5
+caret_blink = true
+
+[node name="XOffsetControls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/XOffsetControls"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="XOffsetLabel" type="Label" parent="ShaderControls/VBoxContainer/XOffsetControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "XOffset:"
+
+[node name="XOffsetHSlider" type="HSlider" parent="ShaderControls/VBoxContainer/XOffsetControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+min_value = -0.5
+max_value = 0.5
+step = 0.01
+value = 0.1
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="XOffsetLineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/XOffsetControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "0.1"
+max_length = 5
+caret_blink = true
+
+[node name="YOffsetControls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/YOffsetControls"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="YOffsetLabel" type="Label" parent="ShaderControls/VBoxContainer/YOffsetControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "YOffset:"
+
+[node name="YOffsetHSlider" type="HSlider" parent="ShaderControls/VBoxContainer/YOffsetControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+min_value = -0.5
+max_value = 0.5
+step = 0.01
+value = 0.1
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="YOffsetLineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/YOffsetControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "0.1"
+max_length = 5
+caret_blink = true
+
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/RadianControls/HBoxContainer/RadiansHSlider" to="." method="_on_RadiansHSlider_value_changed"]
+[connection signal="text_changed" from="ShaderControls/VBoxContainer/RadianControls/HBoxContainer/RadiansLineEdit" to="." method="_on_RadiansLineEdit_text_changed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/QualityControls/HBoxContainer/QualityHSlider" to="." method="_on_QualityHSlider_value_changed"]
+[connection signal="text_changed" from="ShaderControls/VBoxContainer/QualityControls/HBoxContainer/QualityLineEdit" to="." method="_on_QualityLineEdit_text_changed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/OccilationSpeedControls/HBoxContainer/OccilationHSlider" to="." method="_on_OccilationHSlider_value_changed"]
+[connection signal="text_changed" from="ShaderControls/VBoxContainer/OccilationSpeedControls/HBoxContainer/OccilationLineEdit" to="." method="_on_OccilationLineEdit_text_changed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/ScaleValueControls/HBoxContainer/ScaleValueHSlider" to="." method="_on_ScaleValueHSlider_value_changed"]
+[connection signal="text_changed" from="ShaderControls/VBoxContainer/ScaleValueControls/HBoxContainer/ScaleValueLineEdit" to="." method="_on_ScaleValueLineEdit_text_changed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/XOffsetControls/HBoxContainer/XOffsetHSlider" to="." method="_on_XOffsetHSlider_value_changed"]
+[connection signal="text_changed" from="ShaderControls/VBoxContainer/XOffsetControls/HBoxContainer/XOffsetLineEdit" to="." method="_on_XOffsetLineEdit_text_changed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/YOffsetControls/HBoxContainer/YOffsetHSlider" to="." method="_on_YOffsetHSlider_value_changed"]
+[connection signal="text_changed" from="ShaderControls/VBoxContainer/YOffsetControls/HBoxContainer/YOffsetLineEdit" to="." method="_on_YOffsetLineEdit_text_changed"]

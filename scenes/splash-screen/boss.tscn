@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://dnp0nh4abjtp6"]
+
+[ext_resource type="Texture2D" uid="uid://cangrsypkoasx" path="res://assets/landing-screen/boss.png" id="1"]
+[ext_resource type="PackedScene" uid="uid://cluaccg3op607" path="res://scenes/splash-screen/companion.tscn" id="2"]
+
+[node name="Boss" type="Node2D"]
+scale = Vector2(0.7, 0.7)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1")
+
+[node name="Companion" parent="." instance=ExtResource("2")]
+offset_left = 206.362
+offset_top = 177.789
+offset_right = 206.362
+offset_bottom = 177.789

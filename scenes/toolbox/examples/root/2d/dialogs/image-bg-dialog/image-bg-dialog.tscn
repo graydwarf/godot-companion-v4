@@ -1,0 +1,57 @@
+[gd_scene load_steps=4 format=3 uid="uid://bqjsnsi61bl71"]
+
+[ext_resource type="Texture2D" uid="uid://ce4nv0iwjgc00" path="res://scenes/toolbox/examples/root/2d/dialogs/image-bg-dialog/assets/image-bg-dialog.png" id="1"]
+[ext_resource type="Script" path="res://scenes/toolbox/examples/root/2d/dialogs/image-bg-dialog/image-bg-dialog.gd" id="2"]
+[ext_resource type="Theme" uid="uid://ccr2k4swymel8" path="res://assets/themes/default_button_theme.tres" id="2_4l6oc"]
+
+[node name="ImageBgDialogScene" type="Node2D"]
+script = ExtResource("2")
+
+[node name="ResponseLabel" type="Label" parent="."]
+custom_minimum_size = Vector2(200, 40)
+offset_left = 301.0
+offset_top = 58.0
+offset_right = 501.0
+offset_bottom = 98.0
+
+[node name="OpenDialogButton" type="Button" parent="."]
+offset_left = 50.0
+offset_top = 50.0
+offset_right = 150.0
+offset_bottom = 90.0
+theme = ExtResource("2_4l6oc")
+text = "Open Custom Dialog"
+
+[node name="ImageBgDialog" type="Node2D" parent="."]
+visible = false
+
+[node name="DialogBackground" type="Sprite2D" parent="ImageBgDialog"]
+position = Vector2(341.75, 241.75)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1")
+
+[node name="QuestionLabel" type="Label" parent="ImageBgDialog"]
+offset_left = 257.75
+offset_top = 201.75
+offset_right = 436.75
+offset_bottom = 232.75
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Do you like custom dialogs?"
+
+[node name="YesButton" type="Button" parent="ImageBgDialog"]
+offset_left = 261.75
+offset_top = 253.75
+offset_right = 325.75
+offset_bottom = 290.75
+text = "Yes"
+
+[node name="NoButton" type="Button" parent="ImageBgDialog"]
+offset_left = 370.301
+offset_top = 253.75
+offset_right = 434.301
+offset_bottom = 290.75
+text = "No"
+
+[connection signal="pressed" from="OpenDialogButton" to="." method="_on_OpenDialogButton_pressed"]
+[connection signal="pressed" from="ImageBgDialog/YesButton" to="." method="_on_YesButton_pressed"]
+[connection signal="pressed" from="ImageBgDialog/NoButton" to="." method="_on_NoButton_pressed"]

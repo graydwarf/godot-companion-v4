@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=3 uid="uid://cuoj5dx5ugbpx"]
+
+[ext_resource type="Texture2D" uid="uid://spluabwd8f11" path="res://scenes/toolbox/examples/root/2d/top-down/top-down-shooter/assets/asteroids/asteroid1.png" id="1"]
+
+[sub_resource type="CapsuleShape2D" id="1"]
+radius = 18.1029
+height = 58.0417
+
+[node name="Asteroid" type="RigidBody2D" groups=["Potato"]]
+collision_layer = 2
+collision_mask = 2
+mass = 100.0
+gravity_scale = 0.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(2, -1)
+rotation = 0.563643
+shape = SubResource("1")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.2, 0.2)
+texture = ExtResource("1")

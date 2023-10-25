@@ -1,0 +1,300 @@
+[gd_scene load_steps=7 format=3 uid="uid://bq2ueklgm6cmf"]
+
+[ext_resource type="Script" path="res://scenes/toolbox/examples/root/2d/shaders/canvas-item/super-hex/super-hex.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://cangrsypkoasx" path="res://assets/landing-screen/boss.png" id="2"]
+[ext_resource type="FontFile" uid="uid://xxlx2xsv2f0e" path="res://assets/fonts/montreal/Montreal-Bold.ttf" id="3"]
+
+[sub_resource type="Shader" id="5"]
+code = "shader_type canvas_item;
+uniform vec2 scale = vec2(100, 100);
+uniform vec4 color: source_color = vec4(0.5, 0.5, 0.5, 1.0);
+
+float HexDist(vec2 p) {
+	p = abs(p);
+    
+    float c = dot(p, normalize(vec2(1,1.73)));
+    c = max(c, p.x);
+    
+    return c;
+}
+
+vec4 HexCoords(vec2 uv) {
+	vec2 r = vec2(1, 1.73);
+    vec2 h = r*.5;
+    
+    vec2 a = mod(uv, r)-h;
+    vec2 b = mod(uv-h, r)-h;
+    
+    vec2 gv = dot(a, a) < dot(b,b) ? a : b;
+    
+    float x = atan(gv.x, gv.y);
+    float y = .5-HexDist(gv);
+    vec2 id = uv-gv;
+    return vec4(x, y, id.x,id.y);
+}
+
+vec2 random(vec2 uv){
+    uv = vec2( dot(uv, vec2(127.1,311.7) ),
+               dot(uv, vec2(269.5,183.3) ) );
+    return -1.0 + 2.0 * fract(sin(uv) * 43758.5453123);
+}
+
+float noise(vec2 uv) {
+    vec2 uv_index = floor(uv);
+    vec2 uv_fract = fract(uv);
+
+    vec2 blur = smoothstep(0.0, 1.0, uv_fract);
+
+    return mix( mix( dot( random(uv_index + vec2(0.0,0.0) ), uv_fract - vec2(0.0,0.0) ),
+                     dot( random(uv_index + vec2(1.0,0.0) ), uv_fract - vec2(1.0,0.0) ), blur.x),
+                mix( dot( random(uv_index + vec2(0.0,1.0) ), uv_fract - vec2(0.0,1.0) ),
+                     dot( random(uv_index + vec2(1.0,1.0) ), uv_fract - vec2(1.0,1.0) ), blur.x), blur.y) + 0.5;
+}
+
+float stripes(vec2 p, float s) {
+	p *= s;
+	float n = fract(p.x - p.y * 1.73);
+	if (n > 0.75 || n < 0.25)
+		return 0.5;
+	return 0.25;
+}
+
+void fragment() {
+	vec2 uv = UV * scale;
+    uv *= 10.0;
+    vec4 hc = HexCoords(uv / 500.0);
+    
+	int i = hc.y < 0.05 ? 0 : (hc.y > 0.15 ? 1 : 2);
+	vec3 xcol1 = vec3(stripes(uv.xy, 0.005)) * noise(hc.zw / 3.0 + TIME);
+	vec3 xcol2 = vec3(0.375) * noise(hc.zw / 3.0 + TIME * -1.0);
+    vec3 col = i == 0 ? vec3(0.125, 0.125, 0.125) : (i == 1 ? xcol1 : xcol2);
+
+    COLOR = vec4(col, 1.0);
+	COLOR += color;
+}"
+
+[sub_resource type="ShaderMaterial" id="6"]
+shader = SubResource("5")
+shader_parameter/scale = Vector2(500, 500)
+shader_parameter/color = Color(0, 0, 0, 1)
+
+[sub_resource type="FontFile" id="4"]
+resource_local_to_scene = true
+fallbacks = Array[Font]([ExtResource("3")])
+face_index = null
+embolden = null
+transform = null
+cache/0/16/0/ascent = 0.0
+cache/0/16/0/descent = 0.0
+cache/0/16/0/underline_position = 0.0
+cache/0/16/0/underline_thickness = 0.0
+cache/0/16/0/scale = 1.0
+cache/0/16/0/kerning_overrides/16/0 = Vector2(0, 0)
+
+[node name="SuperHex" type="Node2D"]
+script = ExtResource("1")
+
+[node name="AboutNode2D" type="Node2D" parent="."]
+position = Vector2(18, 16)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="AboutNode2D"]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="CreatedByLabel" type="Label" parent="AboutNode2D/VBoxContainer"]
+layout_mode = 2
+text = "Shader Created By: AXSHADER"
+
+[node name="ProvidedByLabel" type="Label" parent="AboutNode2D/VBoxContainer"]
+layout_mode = 2
+focus_mode = 2
+text = "Shader Hosted By: godotshaders.com"
+
+[node name="DemoByLabel" type="Label" parent="AboutNode2D/VBoxContainer"]
+layout_mode = 2
+focus_mode = 2
+text = "Shader Demo By: GrayDwarf"
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+material = SubResource("6")
+position = Vector2(164, 240)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2")
+offset = Vector2(0, 6)
+
+[node name="ShaderControls" type="Node2D" parent="."]
+position = Vector2(331, 89)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ShaderControls"]
+custom_minimum_size = Vector2(400, 200)
+offset_top = 1.0
+offset_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 5
+
+[node name="ColorControls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(300, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/ColorControls"]
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="ColorLabel" type="Label" parent="ShaderControls/VBoxContainer/ColorControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Gap Color:"
+
+[node name="ColorButton" type="Button" parent="ShaderControls/VBoxContainer/ColorControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Color Picker"
+
+[node name="ColorLineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/ColorControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "0.0"
+max_length = 5
+caret_blink = true
+
+[node name="ScaleXYControls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/ScaleXYControls"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="ScaleXYLabel" type="Label" parent="ShaderControls/VBoxContainer/ScaleXYControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "ScaleXY:"
+
+[node name="ScaleXYSlider" type="HSlider" parent="ShaderControls/VBoxContainer/ScaleXYControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+max_value = 500.0
+value = 500.0
+rounded = true
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="ScaleXYLineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/ScaleXYControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "500"
+max_length = 5
+caret_blink = true
+
+[node name="ScaleXControls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/ScaleXControls"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="ScaleXLabel" type="Label" parent="ShaderControls/VBoxContainer/ScaleXControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "ScaleX:"
+
+[node name="ScaleXSlider" type="HSlider" parent="ShaderControls/VBoxContainer/ScaleXControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+max_value = 500.0
+value = 500.0
+rounded = true
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="ScaleXLineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/ScaleXControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "500"
+max_length = 5
+caret_blink = true
+
+[node name="ScaleYControls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/ScaleYControls"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="ScaleYLabel" type="Label" parent="ShaderControls/VBoxContainer/ScaleYControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "ScaleY:"
+
+[node name="ScaleYSlider" type="HSlider" parent="ShaderControls/VBoxContainer/ScaleYControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+max_value = 500.0
+value = 500.0
+rounded = true
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="ScaleYLineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/ScaleYControls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "500"
+max_length = 5
+caret_blink = true
+
+[node name="ColorPickerContainer" type="Node2D" parent="."]
+visible = false
+
+[node name="CloseButton" type="Button" parent="ColorPickerContainer"]
+offset_left = 635.0
+offset_top = 17.0
+offset_right = 664.0
+offset_bottom = 54.0
+theme_override_fonts/font = SubResource("4")
+text = "X"
+flat = true
+
+[node name="ColorPicker" type="ColorPicker" parent="ColorPickerContainer"]
+offset_left = 393.0
+offset_top = 75.0
+offset_right = 685.0
+offset_bottom = 537.0
+
+[connection signal="pressed" from="ShaderControls/VBoxContainer/ColorControls/HBoxContainer/ColorButton" to="." method="_on_ColorButton_pressed"]
+[connection signal="text_changed" from="ShaderControls/VBoxContainer/ColorControls/HBoxContainer/ColorLineEdit" to="." method="_on_ColorLineEdit_text_changed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/ScaleXYControls/HBoxContainer/ScaleXYSlider" to="." method="_on_ScaleXYSlider_value_changed"]
+[connection signal="text_changed" from="ShaderControls/VBoxContainer/ScaleXYControls/HBoxContainer/ScaleXYLineEdit" to="." method="_on_ScaleXYLineEdit_text_changed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/ScaleXControls/HBoxContainer/ScaleXSlider" to="." method="_on_ScaleXSlider_value_changed"]
+[connection signal="text_changed" from="ShaderControls/VBoxContainer/ScaleXControls/HBoxContainer/ScaleXLineEdit" to="." method="_on_ScaleXLineEdit_text_changed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/ScaleYControls/HBoxContainer/ScaleYSlider" to="." method="_on_ScaleYSlider_value_changed"]
+[connection signal="text_changed" from="ShaderControls/VBoxContainer/ScaleYControls/HBoxContainer/ScaleYLineEdit" to="." method="_on_ScaleYLineEdit_text_changed"]
+[connection signal="pressed" from="ColorPickerContainer/CloseButton" to="." method="_on_CloseButton_pressed"]
+[connection signal="color_changed" from="ColorPickerContainer/ColorPicker" to="." method="_on_ColorPicker_color_changed"]

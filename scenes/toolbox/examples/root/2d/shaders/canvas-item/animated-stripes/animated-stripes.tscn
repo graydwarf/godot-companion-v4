@@ -1,0 +1,327 @@
+[gd_scene load_steps=7 format=3 uid="uid://rtl6khj7024k"]
+
+[ext_resource type="Script" path="res://scenes/toolbox/examples/root/2d/shaders/canvas-item/animated-stripes/animated-stripes.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://cangrsypkoasx" path="res://assets/landing-screen/boss.png" id="2"]
+[ext_resource type="FontFile" uid="uid://xxlx2xsv2f0e" path="res://assets/fonts/montreal/Montreal-Bold.ttf" id="3"]
+
+[sub_resource type="Shader" id="3"]
+code = "shader_type canvas_item;
+
+uniform vec4 color_gap: source_color = vec4(0.25);
+uniform vec4 color_stripe: source_color = vec4(1.0, 0.75, 0.0, 1.0);
+uniform float divisions = 8.0; // increase for more stripe density
+uniform float stripe_bias = 2.5; // 1.0 means no stripes; 2.0 means stripes and gaps are equal size
+uniform float speed = 0.1;
+uniform float angle = 0.7854; // in radians
+
+void fragment() {
+	float w = cos(angle) * UV.x + sin(angle) * UV.y - speed * TIME;
+	if (floor(mod(w * divisions, stripe_bias)) < 0.0001) {
+		COLOR = color_gap;
+	} else {
+		COLOR = color_stripe;
+	}
+}
+"
+
+[sub_resource type="ShaderMaterial" id="2"]
+shader = SubResource("3")
+shader_parameter/color_gap = Color(0.25, 0.25, 0.25, 0.25)
+shader_parameter/color_stripe = Color(1, 0.75, 0, 1)
+shader_parameter/divisions = 8.0
+shader_parameter/stripe_bias = 2.5
+shader_parameter/speed = 0.0
+shader_parameter/angle = 0.7854
+
+[sub_resource type="FontFile" id="4"]
+resource_local_to_scene = true
+fallbacks = Array[Font]([ExtResource("3")])
+face_index = null
+embolden = null
+transform = null
+cache/0/16/0/ascent = 0.0
+cache/0/16/0/descent = 0.0
+cache/0/16/0/underline_position = 0.0
+cache/0/16/0/underline_thickness = 0.0
+cache/0/16/0/scale = 1.0
+cache/0/16/0/kerning_overrides/16/0 = Vector2(0, 0)
+
+[node name="AnimatedStripes" type="Node2D"]
+script = ExtResource("1")
+
+[node name="AboutNode2D" type="Node2D" parent="."]
+position = Vector2(18, 16)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="AboutNode2D"]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="CreatedByLabel" type="Label" parent="AboutNode2D/VBoxContainer"]
+layout_mode = 2
+text = "Shader Created By: alxl"
+
+[node name="ProvidedByLabel" type="Label" parent="AboutNode2D/VBoxContainer"]
+layout_mode = 2
+focus_mode = 2
+text = "Shader Hosted By: godotshaders.com"
+
+[node name="DemoByLabel" type="Label" parent="AboutNode2D/VBoxContainer"]
+layout_mode = 2
+focus_mode = 2
+text = "Shader Demo By: GrayDwarf"
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+material = SubResource("2")
+position = Vector2(156, 243)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2")
+offset = Vector2(0, 6)
+
+[node name="ShaderControls" type="Node2D" parent="."]
+position = Vector2(331, 89)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ShaderControls"]
+custom_minimum_size = Vector2(400, 200)
+offset_top = 1.0
+offset_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 5
+
+[node name="Option1Controls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(300, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/Option1Controls"]
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Option1Label" type="Label" parent="ShaderControls/VBoxContainer/Option1Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Gap Color:"
+
+[node name="Option1Button" type="Button" parent="ShaderControls/VBoxContainer/Option1Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Color Picker"
+
+[node name="Option1LineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/Option1Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "0.0"
+max_length = 5
+caret_blink = true
+
+[node name="Option2Controls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(300, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/Option2Controls"]
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Option2Label" type="Label" parent="ShaderControls/VBoxContainer/Option2Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Gap Color:"
+
+[node name="Option2Button" type="Button" parent="ShaderControls/VBoxContainer/Option2Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Color Picker"
+
+[node name="Option2LineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/Option2Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "0.0"
+max_length = 5
+caret_blink = true
+
+[node name="Option3Controls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/Option3Controls"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Option3Label" type="Label" parent="ShaderControls/VBoxContainer/Option3Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Divisions:"
+
+[node name="Option3Slider" type="HSlider" parent="ShaderControls/VBoxContainer/Option3Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+min_value = 1.0
+max_value = 50.0
+value = 8.0
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="Option3LineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/Option3Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "8"
+max_length = 4
+caret_blink = true
+
+[node name="Option4Controls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/Option4Controls"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Option4Label" type="Label" parent="ShaderControls/VBoxContainer/Option4Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Stripe Bias:"
+
+[node name="Option4HSlider" type="HSlider" parent="ShaderControls/VBoxContainer/Option4Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+min_value = 1.001
+max_value = 10.0
+step = 0.001
+value = 2.5
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="Option4LineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/Option4Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "2.5"
+max_length = 5
+caret_blink = true
+
+[node name="Option5Controls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/Option5Controls"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Option5Label" type="Label" parent="ShaderControls/VBoxContainer/Option5Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Speed:"
+
+[node name="Option5HSlider" type="HSlider" parent="ShaderControls/VBoxContainer/Option5Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+max_value = 3.0
+step = 0.01
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="Option5LineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/Option5Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "0.0"
+max_length = 4
+caret_blink = true
+
+[node name="Option6Controls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/Option6Controls"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Option6Label" type="Label" parent="ShaderControls/VBoxContainer/Option6Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Angle:"
+
+[node name="Option6HSlider" type="HSlider" parent="ShaderControls/VBoxContainer/Option6Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+min_value = 0.1
+max_value = 10.0
+step = 0.01
+value = 0.8
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="Option6LineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/Option6Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "0.78"
+max_length = 5
+caret_blink = true
+
+[node name="ColorPickerContainer" type="Node2D" parent="."]
+visible = false
+
+[node name="CloseButton" type="Button" parent="ColorPickerContainer"]
+offset_left = 660.0
+offset_top = 48.0
+offset_right = 689.0
+offset_bottom = 85.0
+theme_override_fonts/font = SubResource("4")
+text = "X"
+flat = true
+
+[node name="ColorPicker" type="ColorPicker" parent="ColorPickerContainer"]
+offset_left = 429.0
+offset_top = 95.0
+offset_right = 705.0
+offset_bottom = 557.0
+
+[connection signal="pressed" from="ShaderControls/VBoxContainer/Option1Controls/HBoxContainer/Option1Button" to="." method="_on_Option1Button_pressed"]
+[connection signal="text_changed" from="ShaderControls/VBoxContainer/Option1Controls/HBoxContainer/Option1LineEdit" to="." method="_on_RadiansLineEdit_text_changed"]
+[connection signal="pressed" from="ShaderControls/VBoxContainer/Option2Controls/HBoxContainer/Option2Button" to="." method="_on_Option2Button_pressed"]
+[connection signal="text_changed" from="ShaderControls/VBoxContainer/Option2Controls/HBoxContainer/Option2LineEdit" to="." method="_on_Option2LineEdit_text_changed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/Option3Controls/HBoxContainer/Option3Slider" to="." method="_on_Option3Slider_value_changed"]
+[connection signal="text_changed" from="ShaderControls/VBoxContainer/Option3Controls/HBoxContainer/Option3LineEdit" to="." method="_on_Option3LineEdit_text_changed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/Option4Controls/HBoxContainer/Option4HSlider" to="." method="_on_Option4HSlider_value_changed"]
+[connection signal="text_changed" from="ShaderControls/VBoxContainer/Option4Controls/HBoxContainer/Option4LineEdit" to="." method="_on_Option4LineEdit_text_changed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/Option5Controls/HBoxContainer/Option5HSlider" to="." method="_on_Option5HSlider_value_changed"]
+[connection signal="text_changed" from="ShaderControls/VBoxContainer/Option5Controls/HBoxContainer/Option5LineEdit" to="." method="_on_Option5LineEdit_text_changed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/Option6Controls/HBoxContainer/Option6HSlider" to="." method="_on_Option6HSlider_value_changed"]
+[connection signal="text_changed" from="ShaderControls/VBoxContainer/Option6Controls/HBoxContainer/Option6LineEdit" to="." method="_on_Option6LineEdit_text_changed"]
+[connection signal="pressed" from="ColorPickerContainer/CloseButton" to="." method="_on_CloseButton_pressed"]
+[connection signal="color_changed" from="ColorPickerContainer/ColorPicker" to="." method="_on_ColorPicker_color_changed"]

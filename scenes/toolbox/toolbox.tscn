@@ -1,0 +1,266 @@
+[gd_scene load_steps=12 format=3 uid="uid://d4i60ueat3t5l"]
+
+[ext_resource type="Texture2D" uid="uid://diaimmcn25pu4" path="res://assets/buttons-32x32/launch-godot-shaders.png" id="1"]
+[ext_resource type="FontFile" uid="uid://xxlx2xsv2f0e" path="res://assets/fonts/montreal/Montreal-Bold.ttf" id="2"]
+[ext_resource type="Texture2D" uid="uid://bjihqyr3805lm" path="res://assets/icons/godot-docs-button-32x32.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://b067bcv6wak0o" path="res://assets/icons/toggle-code-window-3-32x32.png" id="4"]
+[ext_resource type="LabelSettings" uid="uid://dqsitux25jc30" path="res://assets/label-settings/screen-title-label-setting.tres" id="4_o0cwd"]
+[ext_resource type="Texture2D" uid="uid://du4x68t6mphfk" path="res://assets/icons/youtube-32x32-2.png" id="5"]
+[ext_resource type="Theme" uid="uid://da35q366fd4fm" path="res://assets/themes/dark_backgound.tres" id="5_tve8y"]
+[ext_resource type="Texture2D" uid="uid://dq4nr0liy0c3f" path="res://assets/buttons-32x32/github-3.x-32x32.png" id="6_2uc1p"]
+[ext_resource type="Theme" uid="uid://cvcqvh00xgxs6" path="res://assets/themes/titlebar.tres" id="7"]
+[ext_resource type="Script" path="res://scenes/toolbox/toolbox.gd" id="8"]
+
+[sub_resource type="FontFile" id="1"]
+resource_local_to_scene = true
+fallbacks = Array[Font]([ExtResource("2")])
+cache/0/16/0/ascent = 0.0
+cache/0/16/0/descent = 0.0
+cache/0/16/0/underline_position = 0.0
+cache/0/16/0/underline_thickness = 0.0
+cache/0/16/0/scale = 1.0
+cache/0/16/0/glyphs/0/advance = Vector2(0, 0)
+cache/0/16/0/glyphs/0/offset = Vector2(0, 0)
+cache/0/16/0/glyphs/0/size = Vector2(0, 0)
+cache/0/16/0/glyphs/0/uv_rect = Rect2(0, 0, 0, 0)
+cache/0/16/0/glyphs/0/texture_idx = -1
+cache/0/16/0/kerning_overrides/16/0 = Vector2(0, 0)
+
+[node name="ToolBox" type="HBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("8")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HSplitContainer" type="HSplitContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_default_cursor_shape = 6
+theme_override_constants/separation = 6
+theme_override_constants/autohide = 0
+split_offset = 300
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HSplitContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 0
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer/HSplitContainer/VBoxContainer"]
+self_modulate = Color(0.0784314, 0.0784314, 0.0784314, 0.462745)
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme = ExtResource("5_tve8y")
+
+[node name="ExampleTree" type="Tree" parent="VBoxContainer/HSplitContainer/VBoxContainer/ScrollContainer"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+focus_mode = 0
+theme = ExtResource("5_tve8y")
+allow_reselect = true
+hide_root = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/HSplitContainer"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="VSplitContainer2" type="VSplitContainer" parent="VBoxContainer/HSplitContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 0
+split_offset = 32
+collapsed = true
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2"]
+layout_mode = 2
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_bottom = -8
+
+[node name="ToolboxtitleLabel" type="Label" parent="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme = ExtResource("7")
+text = ".:TOOLBOX:.
+"
+label_settings = ExtResource("4_o0cwd")
+horizontal_alignment = 1
+
+[node name="VSplitContainer" type="VSplitContainer" parent="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+dragger_visibility = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/VSplitContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 1
+theme = ExtResource("5_tve8y")
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/VSplitContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 25
+theme_override_constants/margin_top = 25
+theme_override_constants/margin_right = 100
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/VSplitContainer/PanelContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ChalkBoard" type="Control" parent="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 1
+
+[node name="SeizureWarningScreen" type="VBoxContainer" parent="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SeizureWarningLabel" type="Label" parent="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer/SeizureWarningScreen"]
+self_modulate = Color(0.8, 0.8, 0.8, 1)
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_fonts/font = SubResource("1")
+text = "WARNING: Viewing and/or modifying examples may trigger seizures for people with photosensitive epilepsy. Viewer discretion is advised. "
+autowrap_mode = 2
+
+[node name="SeizureWarningLabel2" type="Label" parent="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer/SeizureWarningScreen"]
+self_modulate = Color(0.8, 0.8, 0.8, 1)
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_fonts/font = SubResource("1")
+text = "The initial configuration for all examples should be either stopped or slow moving. However, one small adjustment could lead to fast and/or rapid patterns.
+"
+autowrap_mode = 2
+
+[node name="SeizureWarningLabel3" type="Label" parent="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer/SeizureWarningScreen"]
+self_modulate = Color(0.8, 0.8, 0.8, 1)
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_fonts/font = SubResource("1")
+text = "Unfun Fact #1: Many people find out they are suspectible to epileptic seizures while playing video games. 
+"
+autowrap_mode = 2
+
+[node name="SeizureWarningLabel4" type="Label" parent="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer/SeizureWarningScreen"]
+self_modulate = Color(0.8, 0.8, 0.8, 1)
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_fonts/font = SubResource("1")
+text = "Unfun Fact #2: Epilepsy can start at any age, but usually starts either in childhood or in people over 60. It's often lifelong, but can sometimes get slowly better over time."
+autowrap_mode = 2
+
+[node name="SeizureWarningLabel5" type="Label" parent="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer/SeizureWarningScreen"]
+self_modulate = Color(0.8, 0.8, 0.8, 1)
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_fonts/font = SubResource("1")
+text = "Buckle up.
+
+"
+autowrap_mode = 2
+
+[node name="GodotVersionLabel" type="Label" parent="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer/SeizureWarningScreen"]
+self_modulate = Color(0.796078, 0, 0, 1)
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_fonts/font = SubResource("1")
+text = "
+
+
+
+
+
+
+
+
+
+
+
+
+*NEW* - The examples within have been updated to 4.0 BUT the examples we link to may not be updated yet (or ever) since some are out of our control. For those we do control, we will update them soon.
+
+"
+autowrap_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/VSplitContainer"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/VSplitContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme = ExtResource("5_tve8y")
+
+[node name="GridContainer" type="GridContainer" parent="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/VSplitContainer/HBoxContainer/PanelContainer"]
+layout_mode = 2
+columns = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/VSplitContainer/HBoxContainer/PanelContainer/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="LaunchGitHubUrlButton" type="TextureButton" parent="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/VSplitContainer/HBoxContainer/PanelContainer/GridContainer/HBoxContainer"]
+visible = false
+layout_mode = 2
+tooltip_text = "Open  3.x example in GitHub"
+texture_normal = ExtResource("6_2uc1p")
+
+[node name="LaunchGodotDocUrlButton" type="TextureButton" parent="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/VSplitContainer/HBoxContainer/PanelContainer/GridContainer/HBoxContainer"]
+visible = false
+layout_mode = 2
+tooltip_text = "Show Godot Docs"
+texture_normal = ExtResource("3")
+
+[node name="ShowCodeContainerButton" type="TextureButton" parent="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/VSplitContainer/HBoxContainer/PanelContainer/GridContainer/HBoxContainer"]
+visible = false
+layout_mode = 2
+tooltip_text = "Toggle Code Window"
+texture_normal = ExtResource("4")
+
+[node name="LaunchYoutubeButton" type="TextureButton" parent="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/VSplitContainer/HBoxContainer/PanelContainer/GridContainer/HBoxContainer"]
+visible = false
+layout_mode = 2
+texture_normal = ExtResource("5")
+
+[node name="LaunchGodotShadersUrlButton" type="TextureButton" parent="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/VSplitContainer/HBoxContainer/PanelContainer/GridContainer/HBoxContainer"]
+visible = false
+layout_mode = 2
+tooltip_text = "Show Godot Docs"
+texture_normal = ExtResource("1")
+
+[connection signal="item_selected" from="VBoxContainer/HSplitContainer/VBoxContainer/ScrollContainer/ExampleTree" to="." method="_on_ExampleTree_item_selected"]
+[connection signal="pressed" from="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/VSplitContainer/HBoxContainer/PanelContainer/GridContainer/HBoxContainer/LaunchGitHubUrlButton" to="." method="_on_LaunchGitHubUrlButton_pressed"]
+[connection signal="pressed" from="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/VSplitContainer/HBoxContainer/PanelContainer/GridContainer/HBoxContainer/LaunchGodotDocUrlButton" to="." method="_on_LaunchGodotDocUrlButton_pressed"]
+[connection signal="pressed" from="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/VSplitContainer/HBoxContainer/PanelContainer/GridContainer/HBoxContainer/ShowCodeContainerButton" to="." method="_on_ShowCodeContainerButton_pressed"]
+[connection signal="pressed" from="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/VSplitContainer/HBoxContainer/PanelContainer/GridContainer/HBoxContainer/LaunchYoutubeButton" to="." method="_on_LaunchYoutubeButton_pressed"]
+[connection signal="pressed" from="VBoxContainer/HSplitContainer/HBoxContainer/VSplitContainer2/VSplitContainer/HBoxContainer/PanelContainer/GridContainer/HBoxContainer/LaunchGodotShadersUrlButton" to="." method="_on_LaunchGodotShadersUrlButton_pressed"]

@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://ccje0venheyko"]
+
+[ext_resource type="Texture2D" uid="uid://d23f8snretajg" path="res://scenes/toolbox/examples/root/2d/lines/dotted-lines/assets/dotted-line/dotted-line.png" id="1"]
+[ext_resource type="Script" path="res://scenes/toolbox/examples/root/2d/lines/dotted-lines/scenes/dotted-line/dotted-line.gd" id="2"]
+
+[node name="DottedLine" type="Node2D"]
+script = ExtResource("2")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+rotation = 1.5708
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(0, 0, 128, 8)

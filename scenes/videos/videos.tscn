@@ -1,0 +1,159 @@
+[gd_scene load_steps=8 format=3 uid="uid://g8lmsb7mkmgl"]
+
+[ext_resource type="Script" path="res://scenes/videos/videos.gd" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/videos/search/search.tscn" id="3"]
+[ext_resource type="PackedScene" uid="uid://1mhxof0r77bq" path="res://scenes/videos/disclaimer-screen.tscn" id="4"]
+[ext_resource type="LabelSettings" uid="uid://dqsitux25jc30" path="res://assets/label-settings/screen-title-label-setting.tres" id="4_318q5"]
+[ext_resource type="FontFile" uid="uid://xxlx2xsv2f0e" path="res://assets/fonts/montreal/Montreal-Bold.ttf" id="6"]
+
+[sub_resource type="FontFile" id="1"]
+resource_local_to_scene = true
+subpixel_positioning = 0
+msdf_pixel_range = 14
+msdf_size = 128
+fallbacks = Array[Font]([ExtResource("6"), ExtResource("6")])
+cache/0/16/0/ascent = 0.0
+cache/0/16/0/descent = 0.0
+cache/0/16/0/underline_position = 0.0
+cache/0/16/0/underline_thickness = 0.0
+cache/0/16/0/scale = 1.0
+cache/0/16/0/kerning_overrides/16/0 = Vector2(0, 0)
+
+[sub_resource type="FontFile" id="2"]
+resource_local_to_scene = true
+subpixel_positioning = 0
+msdf_pixel_range = 14
+msdf_size = 128
+fallbacks = Array[Font]([ExtResource("6"), ExtResource("6")])
+cache/0/16/0/ascent = 0.0
+cache/0/16/0/descent = 0.0
+cache/0/16/0/underline_position = 0.0
+cache/0/16/0/underline_thickness = 0.0
+cache/0/16/0/scale = 1.0
+cache/0/16/0/kerning_overrides/16/0 = Vector2(0, 0)
+
+[node name="Videos" type="HBoxContainer"]
+self_modulate = Color(0.223529, 0.223529, 0.223529, 1)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("2")
+
+[node name="HSplitContainer" type="HSplitContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+theme_override_constants/autohide = 0
+split_offset = 250
+
+[node name="TagSearchContainer" type="VBoxContainer" parent="HSplitContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 5
+
+[node name="SearchPane" parent="HSplitContainer/TagSearchContainer" instance=ExtResource("3")]
+custom_minimum_size = Vector2(200, 30)
+layout_mode = 2
+
+[node name="TagsColumnContainer" type="HBoxContainer" parent="HSplitContainer/TagSearchContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 0
+
+[node name="ScrollContainer" type="ScrollContainer" parent="HSplitContainer/TagSearchContainer/TagsColumnContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="TagsGridContainer" type="GridContainer" parent="HSplitContainer/TagSearchContainer/TagsColumnContainer/ScrollContainer"]
+clip_contents = true
+custom_minimum_size = Vector2(275, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/v_separation = 1
+
+[node name="VideoInfoContainer" type="HBoxContainer" parent="HSplitContainer/TagSearchContainer"]
+modulate = Color(0.423529, 0.423529, 0.423529, 1)
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+alignment = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HSplitContainer/TagSearchContainer/VideoInfoContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HSplitContainer/TagSearchContainer/VideoInfoContainer/HBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="VideoCountLabel" type="Label" parent="HSplitContainer/TagSearchContainer/VideoInfoContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = SubResource("1")
+text = "Videos: 345"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="HSplitContainer/TagSearchContainer/VideoInfoContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="HSplitContainer/TagSearchContainer/VideoInfoContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="DisclaimerLinkButton" type="LinkButton" parent="HSplitContainer/TagSearchContainer/VideoInfoContainer/HBoxContainer2/VBoxContainer2"]
+layout_mode = 2
+theme_override_fonts/font = SubResource("2")
+text = "Disclaimer"
+
+[node name="VSplitContainer" type="VSplitContainer" parent="HSplitContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 0
+split_offset = 32
+collapsed = true
+
+[node name="MarginContainer" type="MarginContainer" parent="HSplitContainer/VSplitContainer"]
+layout_mode = 2
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_bottom = -8
+
+[node name="TitleLabel" type="Label" parent="HSplitContainer/VSplitContainer/MarginContainer"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+text = ".:VIDEOS:."
+label_settings = ExtResource("4_318q5")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="VideoTitleContainer" type="HBoxContainer" parent="HSplitContainer/VSplitContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 0
+
+[node name="ScrollContainer" type="ScrollContainer" parent="HSplitContainer/VSplitContainer/VideoTitleContainer"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="VideoRowGridContainer" type="GridContainer" parent="HSplitContainer/VSplitContainer/VideoTitleContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_override_constants/v_separation = 32
+
+[node name="DisclaimerScreen" parent="HSplitContainer/VSplitContainer/VideoTitleContainer" instance=ExtResource("4")]
+layout_mode = 2
+
+[node name="HttpRequestContainer" type="Node2D" parent="."]
+
+[node name="HTTPGetVideosRequest" type="HTTPRequest" parent="HttpRequestContainer"]
+
+[connection signal="pressed" from="HSplitContainer/TagSearchContainer/VideoInfoContainer/HBoxContainer2/VBoxContainer2/DisclaimerLinkButton" to="." method="_on_DisclaimerLinkButton_pressed"]
+[connection signal="request_completed" from="HttpRequestContainer/HTTPGetVideosRequest" to="." method="_on_HTTPGetVideosRequest_request_completed"]

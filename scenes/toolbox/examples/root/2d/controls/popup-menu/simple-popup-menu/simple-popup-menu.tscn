@@ -1,0 +1,92 @@
+[gd_scene load_steps=4 format=3 uid="uid://446lqtogn33u"]
+
+[ext_resource type="Texture2D" uid="uid://ce4dnwiyu4qvs" path="res://assets/context-menu/context-menu.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://bsdodl0xo7a2s" path="res://assets/icon.png" id="2"]
+[ext_resource type="Script" path="res://scenes/toolbox/examples/root/2d/controls/popup-menu/simple-popup-menu/simple-popup-menu.gd" id="3"]
+
+[node name="SimplePopupMenu" type="Control"]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("3")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 0
+offset_left = 7.0
+offset_top = 7.0
+offset_right = 1017.0
+offset_bottom = 58.0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="InstructionLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "- Click the popup menu icon
+- Select any value (just prints a string value to the output)
+- Try dragging the sprite around and opening the popup menu.
+- Try dragging the sprite around while the popup menu is open.
+- Try opening popup menu and then clicking on background
+- Try right clicking on the sprite.
+- Note: Items in the list are added through the UI and dynamically at load.
+
+"
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 10
+
+[node name="OutputLabel" type="Label" parent="MarginContainer/VBoxContainer/MarginContainer"]
+layout_mode = 2
+text = "Your selection: "
+
+[node name="Control" type="Control" parent="."]
+anchors_preset = 0
+offset_left = 344.0
+offset_top = 232.0
+offset_right = 408.0
+offset_bottom = 296.0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="Control"]
+texture = ExtResource("2")
+centered = false
+
+[node name="PopupMenuIcon" type="TextureButton" parent="Control"]
+layout_mode = 0
+offset_left = 69.0
+offset_top = 1.0
+offset_right = 87.0
+offset_bottom = 19.0
+texture_normal = ExtResource("1")
+
+[node name="PopupMenu" type="PopupMenu" parent="Control"]
+item_count = 6
+item_0/text = "Save"
+item_0/id = 0
+item_1/text = "Save As"
+item_1/id = 1
+item_2/text = "Close"
+item_2/id = 2
+item_3/text = "Close All"
+item_3/id = 3
+item_4/text = "Move Up"
+item_4/id = 4
+item_5/text = "Move Down"
+item_5/id = 5
+
+[connection signal="gui_input" from="." to="." method="_on_SimplePopupMenu_gui_input"]
+[connection signal="gui_input" from="Control" to="." method="_on_Control_gui_input"]
+[connection signal="pressed" from="Control/PopupMenuIcon" to="." method="_on_PopupMenuIcon_pressed"]
+[connection signal="index_pressed" from="Control/PopupMenu" to="." method="_on_PopupMenu_index_pressed"]

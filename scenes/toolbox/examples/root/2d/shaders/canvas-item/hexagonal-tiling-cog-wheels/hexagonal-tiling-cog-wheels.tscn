@@ -1,0 +1,558 @@
+[gd_scene load_steps=6 format=3 uid="uid://gx24a3x6xljo"]
+
+[ext_resource type="Script" path="res://scenes/toolbox/examples/root/2d/shaders/canvas-item/hexagonal-tiling-cog-wheels/hexagonal-tiling-cog-wheels.gd" id="1"]
+[ext_resource type="FontFile" uid="uid://xxlx2xsv2f0e" path="res://assets/fonts/montreal/Montreal-Bold.ttf" id="2"]
+
+[sub_resource type="Shader" id="5"]
+code = "/*
+	Original shader by mrange (https://www.shadertoy.com/view/3ljyDD)
+	Godot 3.5 port with customizable parameters by PmkExpert
+	As much as possible of the original has been kept, including comments
+	
+	MIT License
+
+*/
+
+// License CC0: Hexagonal tiling + cog wheels
+//  Nothing fancy, just hexagonal tiling + cog wheels
+
+shader_type canvas_item;
+
+// const float TAU = (2.0 * PI);
+
+uniform vec4 back_color : source_color = vec4(0.63, 0.63, 0.63, 1.0); //The background color
+uniform vec4 gears_color : source_color = vec4(0.3, 0.3, 0.3, 1.0); //The gears color
+uniform float base_zoom : hint_range (0.1, 1.0) = 1.0; //How much the gears are zoomed in
+uniform float zoomSpeed : hint_range (0.0, 1.0) = 0.1; //How quickly the zoom effect cycles
+uniform float GearSpeed : hint_range (-10.0, 10.0) = 1.0; //The gears speed; negative for opposite direction
+uniform float ClockSpeed : hint_range (-10.0, 10.0) = 1.0; //The hands speed; negative to go back in time
+//Some other values in the code can be changed, but are mostly details like the number of holes
+
+mat2 MROT(float a){
+	return mat2(vec2(cos(a),sin(a)),vec2(-sin(a),cos(a)));
+}
+
+float hash(in vec2 co) {
+  return fract(sin(dot(co.xy ,vec2(12.9898,58.233))) * 13758.5453);
+}
+
+float pcos(float a) {
+  return 0.5 + 0.5*cos(a);
+}
+
+void rot(inout vec2 p, float a) {
+  float c = cos(a);
+  float s = sin(a);
+  p = vec2(c*p.x + s*p.y, -s*p.x + c*p.y);
+}
+
+float modPolar(inout vec2 p, float repetitions) {
+  float angle = 2.0*PI/repetitions;
+  float a = atan(p.y, p.x) + angle/2.;
+  float r = length(p);
+  float c = floor(a/angle);
+  a = mod(a,angle) - angle/2.;
+  p = vec2(cos(a), sin(a))*r;
+  // For an odd number of repetitions, fix cell index of the cell in -x direction
+  // (cell index would be e.g. -5 and 5 in the two halves of the cell):
+  if (abs(c) >= (repetitions/2.0)) c = abs(c);
+  return c;
+}
+
+float pmin(float a, float b, float k) {
+  float h = clamp( 0.5+0.5*(b-a)/k, 0.0, 1.0 );
+  return mix( b, a, h ) - k*h*(1.0-h);
+}
+
+const vec2 sz = vec2(1.0, 1.73205080757);
+const vec2 hsz = 0.5 * sz;
+const float smallCount = 16.0;
+
+vec2 hextile(inout vec2 p) {
+  // See Art of Code: Hexagonal Tiling Explained!
+  // https://www.youtube.com/watch?v=VmrIDyYiJBA
+
+  vec2 p1 = mod(p, sz)-hsz;
+  vec2 p2 = mod(p - hsz*1.0, sz)-hsz;
+  vec2 p3 = dot(p1, p1) < dot(p2, p2) ? p1 : p2;
+  vec2 n = p3 - p;
+  p = p3;
+
+  return n;
+}
+
+float circle(vec2 p, float r) {
+  return length(p) - r;
+}
+
+float box(vec2 p, vec2 b) {
+  vec2 d = abs(p)-b;
+  return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
+}
+
+float unevenCapsule(vec2 p, float r1, float r2, float h) {
+  p.x = abs(p.x);
+  float b = (r1-r2)/h;
+  float a = sqrt(1.0-b*b);
+  float k = dot(p,vec2(-b,a));
+  if( k < 0.0 ) return length(p) - r1;
+  if( k > a*h ) return length(p-vec2(0.0,h)) - r2;
+  return dot(p, vec2(a,b) ) - r1;
+}
+
+float cogwheel(vec2 p, float innerRadius, float outerRadius, float cogs, float holes) {
+  float cogWidth  = 0.25*innerRadius*TAU/cogs;
+  
+  float d0 = circle(p, innerRadius);  
+    
+  vec2 icp = p;
+  modPolar(icp, holes);
+  icp -= vec2(innerRadius*0.55, 0.0);
+  float d1 = circle(icp, innerRadius*0.25);  
+
+  vec2 cp = p;
+  modPolar(cp, cogs);
+  cp -= vec2(innerRadius, 0.0);
+  float d2 = unevenCapsule(cp.yx, cogWidth, cogWidth*0.75, (outerRadius-innerRadius));
+
+  float d3 = circle(p, innerRadius*0.20);  
+  
+  float d = 1E6;  
+  d = min(d, d0);
+  d = pmin(d, d2, 0.5*cogWidth);
+  d = min(d, d2);
+  d = max(d, -d1);
+  d = max(d, -d3);
+  
+  return d;
+}
+
+float ccell1(vec2 p, float r) {
+  float d = 1E6;
+  const float bigCount = 60.0;
+  
+  vec2 cp0 = p;
+  rot(cp0, -TIME * GearSpeed *TAU/bigCount);
+  float d0 = cogwheel(cp0, 0.36, 0.38, bigCount, 5.0);
+  
+  vec2 cp1 = p;
+  float nm = modPolar(cp1, 6.0);
+
+  cp1 -= vec2(0.5, 0.0);
+  rot(cp1, 0.2+TAU*nm/2.0 + TIME * GearSpeed *TAU/smallCount);
+  float d1 = cogwheel(cp1, 0.11, 0.125, smallCount, 5.0);
+
+  d = min(d, d0);
+  d = min(d, d1);
+  return d;
+}
+
+float ccell2(vec2 p, float r) {
+  float d = 1E6;
+  vec2 cp0 = p;
+  float nm = modPolar(cp0, 6.0);
+  vec2 cp1 = cp0;
+  const float off = 0.275;
+  const float count = smallCount + 2.0;
+  cp0 -= vec2(off, 0.0);
+  rot(cp0, 0.+TAU*nm/2.0 - TIME * GearSpeed *TAU/count);
+  float d0 = cogwheel(cp0, 0.09, 0.105, count, 5.0);
+  
+
+  cp1 -= vec2(0.5, 0.0);
+  rot(cp1, 0.2+TAU*nm/2.0 + TIME * GearSpeed *TAU/smallCount);
+  float d1 = cogwheel(cp1, 0.11, 0.125, smallCount, 5.0);
+  
+  float l = length(p);
+  float d2 = l - (off+0.055);
+  float d3 = d2 + 0.020;
+  
+  vec2 tp0 = p;
+  modPolar(tp0, 60.0);
+  tp0.x -= off;
+  float d4 = box(tp0, vec2(0.0125, 0.005));
+
+  float ctime = -(TIME * ClockSpeed *0.05 + r)*TAU;
+
+  vec2 tp1 = p;
+  rot(tp1, ctime*12.0);
+  tp1.x -= 0.13;
+  float d5 = box(tp1, vec2(0.125, 0.005));
+
+  vec2 tp2 = p;
+  rot(tp2, ctime);
+  tp2.x -= 0.13*0.5;
+  float d6 = box(tp2, vec2(0.125*0.5, 0.0075));
+
+  float d7 = l - 0.025;
+  float d8 = l - 0.0125;
+
+  d = min(d, d0);
+  d = min(d, d1);
+  d = min(d, d2);
+  d = max(d, -d3);
+  d = min(d, d4);
+  d = min(d, d5);
+  d = min(d, d6);
+  d = min(d, d7);
+  d = max(d, -d8);
+
+  return d;
+}
+
+float df(vec2 p, float scale, inout vec2 nn) {
+  p /= scale;
+  nn = hextile(p);
+  nn = round(nn);
+  float r = hash(nn);
+
+  float d;
+  
+  if (r < 0.5) {
+    d = ccell1(p, r);  
+  } else {
+    d = ccell2(p, r);
+  }
+  
+  return d*scale;
+}
+
+vec3 postProcess(vec3 col, vec2 q)  {
+  //col = saturate(col);
+  col=pow(clamp(col,0.0,1.0),vec3(0.75)); 
+  col=col*0.6+0.4*col*col*(3.0-2.0*col);  // contrast
+  col=mix(col, vec3(dot(col, vec3(0.33))), -0.4);  // satuation
+  col*=0.5+0.5*pow(19.0*q.x*q.y*(1.0-q.x)*(1.0-q.y),0.7);  // vigneting
+  return col;
+}
+
+void fragment() {
+  vec2 q = FRAGCOORD.xy/(1.0 / SCREEN_PIXEL_SIZE).xy;
+  vec2 p = -1. + 2. * q;
+  p.x *= (1.0 / SCREEN_PIXEL_SIZE).x/(1.0 / SCREEN_PIXEL_SIZE).y;
+  float tm = 0.1 + TIME * zoomSpeed;
+  p += vec2(cos(tm), sin(tm*sqrt(0.5)));
+  float z = mix(0.5, base_zoom, pcos(tm*sqrt(0.3)));
+  float aa = 4.0 / (1.0 / SCREEN_PIXEL_SIZE).y;
+
+  vec2 nn = vec2(0.0);
+  float d = df(p, z, nn);
+
+  vec3 col = back_color.rgb;
+  vec3 baseCol = gears_color.rgb;
+  vec4 logoCol = vec4(baseCol, 1.0)*smoothstep(-aa, 0.0, -d);
+  col = mix(col, logoCol.xyz, pow(logoCol.w, 8.0));  
+  col += 0.4*pow(abs(sin(20.0*d)), 0.6);  
+  
+  col = postProcess(col, q);
+  
+  COLOR.rgb = vec3(col);
+  COLOR.a = texture(TEXTURE, UV).a;
+}"
+
+[sub_resource type="ShaderMaterial" id="6"]
+shader = SubResource("5")
+shader_parameter/back_color = Color(0.63, 0.63, 0.63, 1)
+shader_parameter/gears_color = Color(0.3, 0.3, 0.3, 1)
+shader_parameter/base_zoom = 1.0
+shader_parameter/zoomSpeed = 0.1
+shader_parameter/GearSpeed = 1.0
+shader_parameter/ClockSpeed = 1.0
+
+[sub_resource type="FontFile" id="4"]
+resource_local_to_scene = true
+fallbacks = Array[Font]([ExtResource("2")])
+face_index = null
+embolden = null
+transform = null
+cache/0/16/0/ascent = 0.0
+cache/0/16/0/descent = 0.0
+cache/0/16/0/underline_position = 0.0
+cache/0/16/0/underline_thickness = 0.0
+cache/0/16/0/scale = 1.0
+cache/0/16/0/kerning_overrides/16/0 = Vector2(0, 0)
+
+[node name="HexagonalTilingCogWheels" type="Node2D"]
+script = ExtResource("1")
+
+[node name="AboutNode2D" type="Node2D" parent="."]
+position = Vector2(18, 16)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="AboutNode2D"]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="CreatedByLabel" type="Label" parent="AboutNode2D/VBoxContainer"]
+layout_mode = 2
+text = "Shader Created By: PmkExpert"
+
+[node name="ProvidedByLabel" type="Label" parent="AboutNode2D/VBoxContainer"]
+layout_mode = 2
+focus_mode = 2
+text = "Shader Hosted By: godotshaders.com"
+
+[node name="DemoByLabel" type="Label" parent="AboutNode2D/VBoxContainer"]
+layout_mode = 2
+focus_mode = 2
+text = "Shader Demo By: GrayDwarf"
+
+[node name="InstructionLabel" type="Label" parent="AboutNode2D/VBoxContainer"]
+layout_mode = 2
+focus_mode = 2
+text = "Using a ColorRect. Try dragging it around."
+
+[node name="ColorRect" type="ColorRect" parent="."]
+material = SubResource("6")
+offset_left = 28.0
+offset_top = 166.0
+offset_right = 300.0
+offset_bottom = 381.0
+
+[node name="ShaderControls" type="Node2D" parent="."]
+position = Vector2(331, 89)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ShaderControls"]
+custom_minimum_size = Vector2(400, 200)
+offset_top = 1.0
+offset_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 5
+
+[node name="Option1Controls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(300, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/Option1Controls"]
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Option1Label" type="Label" parent="ShaderControls/VBoxContainer/Option1Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Back Color:"
+
+[node name="Option1Button" type="Button" parent="ShaderControls/VBoxContainer/Option1Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Color Picker"
+
+[node name="Option1LineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/Option1Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+max_length = 5
+caret_blink = true
+
+[node name="Option2Controls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(300, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/Option2Controls"]
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Option2Label" type="Label" parent="ShaderControls/VBoxContainer/Option2Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Gears Color:"
+
+[node name="Option2Button" type="Button" parent="ShaderControls/VBoxContainer/Option2Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Color Picker"
+
+[node name="Option2LineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/Option2Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+max_length = 5
+caret_blink = true
+
+[node name="Option3Controls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/Option3Controls"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Option3Label" type="Label" parent="ShaderControls/VBoxContainer/Option3Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Base Zoom:"
+
+[node name="Option3Slider" type="HSlider" parent="ShaderControls/VBoxContainer/Option3Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+min_value = 0.1
+max_value = 1.0
+step = 0.01
+value = 1.0
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="Option3LineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/Option3Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "1"
+max_length = 4
+caret_blink = true
+
+[node name="Option4Controls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/Option4Controls"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Option4Label" type="Label" parent="ShaderControls/VBoxContainer/Option4Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Zoom Speed:"
+
+[node name="Option4HSlider" type="HSlider" parent="ShaderControls/VBoxContainer/Option4Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+max_value = 1.0
+step = 0.1
+value = 0.1
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="Option4LineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/Option4Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "0.1"
+max_length = 5
+caret_blink = true
+
+[node name="Option5Controls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/Option5Controls"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Option5Label" type="Label" parent="ShaderControls/VBoxContainer/Option5Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Gear Speed:"
+
+[node name="Option5HSlider" type="HSlider" parent="ShaderControls/VBoxContainer/Option5Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+min_value = -10.0
+max_value = 10.0
+step = 0.1
+value = 1.0
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="Option5LineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/Option5Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "1"
+max_length = 4
+caret_blink = true
+
+[node name="Option6Controls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/Option6Controls"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Option6Label" type="Label" parent="ShaderControls/VBoxContainer/Option6Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Clock Speed:"
+
+[node name="Option6HSlider" type="HSlider" parent="ShaderControls/VBoxContainer/Option6Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+min_value = -10.0
+max_value = 10.0
+step = 0.1
+value = 0.2
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="Option6LineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/Option6Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "0.2"
+max_length = 5
+caret_blink = true
+
+[node name="ColorPickerContainer" type="Node2D" parent="."]
+
+[node name="CloseButton" type="Button" parent="ColorPickerContainer"]
+offset_left = 665.0
+offset_top = 46.0
+offset_right = 694.0
+offset_bottom = 83.0
+theme_override_fonts/font = SubResource("4")
+text = "X"
+flat = true
+
+[node name="ColorPicker" type="ColorPicker" parent="ColorPickerContainer"]
+offset_left = 421.0
+offset_top = 95.0
+offset_right = 705.0
+offset_bottom = 557.0
+
+[connection signal="gui_input" from="ColorRect" to="." method="_on_ColorRect_gui_input"]
+[connection signal="pressed" from="ShaderControls/VBoxContainer/Option1Controls/HBoxContainer/Option1Button" to="." method="_on_Option1Button_pressed"]
+[connection signal="text_changed" from="ShaderControls/VBoxContainer/Option1Controls/HBoxContainer/Option1LineEdit" to="." method="_on_RadiansLineEdit_text_changed"]
+[connection signal="pressed" from="ShaderControls/VBoxContainer/Option2Controls/HBoxContainer/Option2Button" to="." method="_on_Option2Button_pressed"]
+[connection signal="text_changed" from="ShaderControls/VBoxContainer/Option2Controls/HBoxContainer/Option2LineEdit" to="." method="_on_Option2LineEdit_text_changed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/Option3Controls/HBoxContainer/Option3Slider" to="." method="_on_Option3Slider_value_changed"]
+[connection signal="text_changed" from="ShaderControls/VBoxContainer/Option3Controls/HBoxContainer/Option3LineEdit" to="." method="_on_Option3LineEdit_text_changed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/Option4Controls/HBoxContainer/Option4HSlider" to="." method="_on_Option4HSlider_value_changed"]
+[connection signal="text_changed" from="ShaderControls/VBoxContainer/Option4Controls/HBoxContainer/Option4LineEdit" to="." method="_on_Option4LineEdit_text_changed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/Option5Controls/HBoxContainer/Option5HSlider" to="." method="_on_Option5HSlider_value_changed"]
+[connection signal="text_changed" from="ShaderControls/VBoxContainer/Option5Controls/HBoxContainer/Option5LineEdit" to="." method="_on_Option5LineEdit_text_changed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/Option6Controls/HBoxContainer/Option6HSlider" to="." method="_on_Option6HSlider_value_changed"]
+[connection signal="text_changed" from="ShaderControls/VBoxContainer/Option6Controls/HBoxContainer/Option6LineEdit" to="." method="_on_Option6LineEdit_text_changed"]
+[connection signal="pressed" from="ColorPickerContainer/CloseButton" to="." method="_on_CloseButton_pressed"]
+[connection signal="color_changed" from="ColorPickerContainer/ColorPicker" to="." method="_on_ColorPicker_color_changed"]

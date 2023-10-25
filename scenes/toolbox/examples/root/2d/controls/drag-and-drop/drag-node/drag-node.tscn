@@ -1,0 +1,57 @@
+[gd_scene load_steps=3 format=3 uid="uid://b0madle41mwqt"]
+
+[ext_resource type="Script" path="res://scenes/toolbox/examples/root/2d/controls/drag-and-drop/drag-node/drag-node.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://bsdodl0xo7a2s" path="res://assets/icon.png" id="2"]
+
+[node name="DragNode" type="Node2D"]
+script = ExtResource("1")
+
+[node name="Label" type="Label" parent="."]
+offset_left = -1.0
+offset_top = 1.0
+offset_right = 566.0
+offset_bottom = 49.0
+text = "Click to drag. 
+- The blue one adjusts to your specific click point which is usually preferred. 
+- The red one does not adjust so we always grab it by top/left corner.
+- The green one drags both because it's the parent node of the others."
+
+[node name="GreenControl" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 279.0
+offset_top = 266.0
+offset_right = 343.0
+offset_bottom = 330.0
+
+[node name="Sprite2D" type="Sprite2D" parent="GreenControl"]
+self_modulate = Color(0, 1, 0.0627451, 1)
+texture = ExtResource("2")
+centered = false
+
+[node name="BlueControl" type="Control" parent="GreenControl"]
+anchors_preset = 0
+offset_left = -201.0
+offset_top = -117.0
+offset_right = -137.0
+offset_bottom = -53.0
+
+[node name="Sprite2D" type="Sprite2D" parent="GreenControl/BlueControl"]
+texture = ExtResource("2")
+centered = false
+
+[node name="RedControl" type="Control" parent="GreenControl"]
+anchors_preset = 0
+offset_left = -97.0
+offset_top = -115.0
+offset_right = -33.0
+offset_bottom = -51.0
+
+[node name="Sprite2D" type="Sprite2D" parent="GreenControl/RedControl"]
+self_modulate = Color(1, 0, 0, 1)
+texture = ExtResource("2")
+centered = false
+
+[connection signal="gui_input" from="GreenControl" to="." method="_on_GreenControl_gui_input"]
+[connection signal="gui_input" from="GreenControl/BlueControl" to="." method="_on_BlueControl_gui_input"]
+[connection signal="gui_input" from="GreenControl/RedControl" to="." method="_on_RedControl_gui_input"]

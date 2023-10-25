@@ -1,0 +1,55 @@
+[gd_scene load_steps=5 format=3 uid="uid://bsqda8hbmytwc"]
+
+[ext_resource type="PackedScene" uid="uid://co503r8nkjr5j" path="res://scenes/toolbox/examples/root/2d/movement/thruster-particles/scenes/thruster/thruster.tscn" id="1"]
+[ext_resource type="Script" path="res://scenes/toolbox/examples/root/2d/movement/thruster-particles/scenes/thruster-particles.gd" id="2"]
+[ext_resource type="FontFile" uid="uid://xxlx2xsv2f0e" path="res://assets/fonts/montreal/Montreal-Bold.ttf" id="3"]
+
+[sub_resource type="FontFile" id="1"]
+resource_local_to_scene = true
+fallbacks = Array[Font]([ExtResource("3")])
+face_index = null
+embolden = null
+transform = null
+cache/0/16/0/ascent = 0.0
+cache/0/16/0/descent = 0.0
+cache/0/16/0/underline_position = 0.0
+cache/0/16/0/underline_thickness = 0.0
+cache/0/16/0/scale = 1.0
+cache/0/16/0/kerning_overrides/16/0 = Vector2(0, 0)
+
+[node name="ThrusterParticles" type="Node2D"]
+self_modulate = Color(1, 1, 1, 0)
+script = ExtResource("2")
+
+[node name="InstructionsLabel" type="Label" parent="."]
+offset_left = 49.0
+offset_top = 34.0
+offset_right = 372.0
+offset_bottom = 58.0
+theme_override_fonts/font = SubResource("1")
+text = "Mouse to aim thusters and W for thrust."
+
+[node name="ThrustAdjusterHSlider" type="HSlider" parent="."]
+offset_left = 625.0
+offset_top = 139.0
+offset_right = 775.0
+offset_bottom = 171.0
+value = 10.0
+
+[node name="ThusterContainer" type="Node2D" parent="."]
+
+[node name="Thruster" parent="ThusterContainer" instance=ExtResource("1")]
+position = Vector2(338, 146)
+
+[node name="Thruster2" parent="ThusterContainer" instance=ExtResource("1")]
+position = Vector2(234, 147)
+
+[node name="ThrustLabel" type="Label" parent="."]
+offset_left = 488.0
+offset_top = 143.0
+offset_right = 627.0
+offset_bottom = 167.0
+theme_override_fonts/font = SubResource("1")
+text = "Thrust Amount"
+
+[connection signal="value_changed" from="ThrustAdjusterHSlider" to="." method="_on_HSlider_value_changed"]

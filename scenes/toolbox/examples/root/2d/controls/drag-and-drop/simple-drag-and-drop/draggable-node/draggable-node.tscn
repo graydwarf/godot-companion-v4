@@ -1,0 +1,34 @@
+[gd_scene load_steps=3 format=3 uid="uid://cldqg0dmn3o1f"]
+
+[ext_resource type="Texture2D" uid="uid://bgaac8lqxedk" path="res://assets/shapes/circle-128x128.png" id="1"]
+[ext_resource type="Script" path="res://scenes/toolbox/examples/root/2d/controls/drag-and-drop/simple-drag-and-drop/draggable-node/draggable-node.gd" id="2"]
+
+[node name="DraggableNode" type="Control"]
+custom_minimum_size = Vector2(128, 128)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 128.0
+offset_bottom = 128.0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+mouse_filter = 1
+script = ExtResource("2")
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 2.0
+offset_right = 62.0
+offset_bottom = 62.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="TextureButton" type="TextureButton" parent="CenterContainer"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+mouse_filter = 2
+texture_normal = ExtResource("1")
+
+[connection signal="gui_input" from="." to="." method="_on_gui_input"]
+[connection signal="button_up" from="CenterContainer/TextureButton" to="." method="_on_texture_button_button_up"]

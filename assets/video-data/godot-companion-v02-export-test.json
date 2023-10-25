@@ -1,0 +1,47 @@
+{
+  "Notifications": {
+	"3r32324324": {
+	  "Active": true,
+	  "Message": "Welcome to Godot Companion v0.2!\n\nWhats New?\n- Toolbox feature added\n- 'Latest Videos' section added\n- Other minor UI improvements"
+	}
+  },
+  "ReplacementTags": {
+	"Coding": true,
+	"Game Development": true,
+	"Gamedev": true,
+	"Godot": true,
+	"Godot Engine": "",
+	"Lesson": true,
+	"Programming": true,
+	"Tutorial": true
+  },
+  "Versions": {
+	"ReplacementTags": 6,
+	"Videos": 1543
+  },
+  "Videos": {
+	"-Mejobar1FKGAndgS0Au": {
+	  "CodeType": "gd",
+	  "Dimensions": "2D",
+	  "GodotVersion": "3.x",
+	  "ServiceId": "YouTube",
+	  "Tags": {
+		"Endless Runner": true,
+		"Movement": true
+	  },
+	  "Title": "Godot Endless-Runner Tutorial",
+	  "VideoId": "0amclwspR0w"
+	},
+	"-MeosyO0-dx_fGzcb4z2": {
+	  "CodeType": "gd",
+	  "Dimensions": "2D",
+	  "GodotVersion": "3.x",
+	  "ServiceId": "YouTube",
+	  "Tags": {
+		"Multiplayer": true,
+		"Nakama": true
+	  },
+	  "Title": "\"Fish Game\" for Godot: Online Multiplayer Tutorial with Nakama",
+	  "VideoId": "0uccWWwiXw4"
+	}
+}

@@ -1,0 +1,18 @@
+[gd_resource type="Theme" load_steps=5 format=3 uid="uid://boj3tvm1ycsv1"]
+
+[ext_resource type="Texture2D" uid="uid://dhqowsix5c8da" path="res://assets/checkbox/checked.png" id="1_uryrv"]
+[ext_resource type="Texture2D" uid="uid://dhcm40i1xq1qk" path="res://assets/checkbox/unchecked.png" id="2_1ltsc"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dih8s"]
+bg_color = Color(0, 0, 0, 1)
+border_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5dt2q"]
+bg_color = Color(0, 0, 0, 1)
+border_color = Color(0, 0, 0, 1)
+
+[resource]
+CheckBox/icons/checked = ExtResource("1_uryrv")
+CheckBox/icons/unchecked = ExtResource("2_1ltsc")
+CheckBox/styles/focus = SubResource("StyleBoxFlat_dih8s")
+CheckBox/styles/pressed = SubResource("StyleBoxFlat_5dt2q")

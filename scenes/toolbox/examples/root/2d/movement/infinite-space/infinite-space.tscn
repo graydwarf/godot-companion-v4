@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://bg6max4h8fle6"]
+
+[ext_resource type="PackedScene" uid="uid://bbydmx1jxowvl" path="res://scenes/toolbox/examples/root/2d/movement/infinite-space/space/space.tscn" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/toolbox/examples/root/2d/movement/infinite-space/player/player.tscn" id="2"]
+
+[node name="Main" type="Node2D"]
+
+[node name="Space" parent="." instance=ExtResource("1")]
+
+[node name="Player" parent="." instance=ExtResource("2")]
+position = Vector2(511, 302)
+
+[node name="Camera2D" type="Camera2D" parent="Player"]

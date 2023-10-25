@@ -1,0 +1,695 @@
+[gd_scene load_steps=6 format=3 uid="uid://wup4s4kmwkg8"]
+
+[ext_resource type="Script" path="res://scenes/toolbox/examples/root/2d/shaders/canvas-item/god-rays/god-rays.gd" id="1"]
+[ext_resource type="FontFile" uid="uid://xxlx2xsv2f0e" path="res://assets/fonts/montreal/Montreal-Bold.ttf" id="3"]
+
+[sub_resource type="Shader" id="3"]
+code = "/*
+Shader from Godot Shaders - the free shader library.
+godotshaders.com/shader/god-rays
+
+Feel free to use, improve and change this shader according to your needs
+and consider sharing the modified result on godotshaders.com.
+*/
+
+shader_type canvas_item;
+
+uniform sampler2D screen_texture : hint_default_black;
+uniform vec2 screen_uv_scale;
+
+uniform float angle = -0.3;
+uniform float position = -0.2;
+uniform float spread : hint_range(0.0, 1.0) = 0.5;
+uniform float cutoff : hint_range(-1.0, 1.0) = 0.1;
+uniform float falloff : hint_range(0.0, 1.0) = 0.2;
+uniform float edge_fade : hint_range(0.0, 1.0) = 0.15;
+
+uniform float speed = 1.0;
+uniform float ray1_density = 8.0;
+uniform float ray2_density = 30.0;
+uniform float ray2_intensity : hint_range(0.0, 1.0) = 0.3;
+
+uniform vec4 color = vec4(1.0, 0.9, 0.65, 0.8);
+
+uniform bool hdr = false;
+uniform float seed = 5.0;
+
+// Random and noise functions from Book of Shader's chapter on Noise.
+float random(vec2 _uv) {
+    return fract(sin(dot(_uv.xy,
+                         vec2(12.9898, 78.233))) *
+        43758.5453123);
+}
+
+float noise (in vec2 uv) {
+    vec2 i = floor(uv);
+    vec2 f = fract(uv);
+
+    // Four corners in 2D of a tile
+    float a = random(i);
+    float b = random(i + vec2(1.0, 0.0));
+    float c = random(i + vec2(0.0, 1.0));
+    float d = random(i + vec2(1.0, 1.0));
+
+
+    // Smooth Interpolation
+
+    // Cubic Hermine Curve. Same as SmoothStep()
+    vec2 u = f * f * (3.0-2.0 * f);
+
+    // Mix 4 coorners percentages
+    return mix(a, b, u.x) +
+            (c - a)* u.y * (1.0 - u.x) +
+            (d - b) * u.x * u.y;
+}
+
+mat2 rotate(float _angle){
+    return mat2(vec2(cos(_angle), -sin(_angle)),
+                vec2(sin(_angle), cos(_angle)));
+}
+
+// https://godotshaders.com/snippet/blending-modes/
+vec4 screen(vec4 base, vec4 blend){
+	return 1.0 - (1.0 - base) * (1.0 - blend);
+}
+
+void fragment()
+{
+	
+	// Rotate, skew and move the UVs
+	vec2 transformed_uv = ( rotate(angle) * (UV - position) )  / ( (UV.y + spread) - (UV.y * spread) );
+	
+	// Animate the ray according the the new transformed UVs
+	vec2 ray1 = vec2(transformed_uv.x * ray1_density + sin(TIME * 0.1 * speed) * (ray1_density * 0.2) + seed, 1.0);
+	vec2 ray2 = vec2(transformed_uv.x * ray2_density + sin(TIME * 0.2 * speed) * (ray1_density * 0.2) + seed, 1.0);
+	
+	// Cut off the ray's edges
+	float cut = step(cutoff, transformed_uv.x) * step(cutoff, 1.0 - transformed_uv.x);
+	ray1 *= cut;
+	ray2 *= cut;
+	
+	// Apply the noise pattern (i.e. create the rays)
+	float rays;
+	
+	if (hdr){
+		// This is not really HDR, but check this to not clamp the two merged rays making 
+		// their values go over 1.0. Can make for some nice effect
+		rays = noise(ray1) + (noise(ray2) * ray2_intensity);
+	}
+	else{
+		 rays = clamp(noise(ray1) + (noise(ray2) * ray2_intensity), 0., 1.);
+	}
+	
+	// Fade out edges
+	rays *= smoothstep(0.0, falloff, (1.0 - UV.y)); // Bottom
+	rays *= smoothstep(0.0 + cutoff, edge_fade + cutoff, transformed_uv.x); // Left
+	rays *= smoothstep(0.0 + cutoff, edge_fade + cutoff, 1.0 - transformed_uv.x); // Right
+	
+	// Color to the rays
+	vec3 shine = vec3(rays) * color.rgb;
+
+	// Try different blending modes for a nicer effect. \"Screen\" is included in the code,
+	// but take a look at https://godotshaders.com/snippet/blending-modes/ for more.
+	// With \"Screen\" blend mode:
+    shine = screen(texture(screen_texture, screen_uv_scale * UV), vec4(color)).rgb;
+
+    COLOR = vec4(shine, rays * color.a);
+}"
+
+[sub_resource type="ShaderMaterial" id="2"]
+shader = SubResource("3")
+shader_parameter/screen_uv_scale = null
+shader_parameter/angle = 0.7
+shader_parameter/position = 0.3
+shader_parameter/spread = 0.5
+shader_parameter/cutoff = 0.08
+shader_parameter/falloff = 0.5
+shader_parameter/edge_fade = 0.4
+shader_parameter/speed = 10.0
+shader_parameter/ray1_density = 8.0
+shader_parameter/ray2_density = 30.0
+shader_parameter/ray2_intensity = 0.3
+shader_parameter/color = Color(0.301961, 0.160784, 0.00392157, 0.8)
+shader_parameter/hdr = false
+shader_parameter/seed = 5.0
+
+[sub_resource type="FontFile" id="4"]
+resource_local_to_scene = true
+fallbacks = Array[Font]([ExtResource("3")])
+face_index = null
+embolden = null
+transform = null
+cache/0/16/0/ascent = 0.0
+cache/0/16/0/descent = 0.0
+cache/0/16/0/underline_position = 0.0
+cache/0/16/0/underline_thickness = 0.0
+cache/0/16/0/scale = 1.0
+cache/0/16/0/kerning_overrides/16/0 = Vector2(0, 0)
+
+[node name="GodRays" type="Node2D"]
+script = ExtResource("1")
+
+[node name="AboutNode2D" type="Node2D" parent="."]
+position = Vector2(18, 16)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="AboutNode2D"]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="CreatedByLabel" type="Label" parent="AboutNode2D/VBoxContainer"]
+layout_mode = 2
+text = "Shader Created By: pend00"
+
+[node name="ProvidedByLabel" type="Label" parent="AboutNode2D/VBoxContainer"]
+layout_mode = 2
+focus_mode = 2
+text = "Shader Hosted By: godotshaders.com"
+
+[node name="DemoByLabel" type="Label" parent="AboutNode2D/VBoxContainer"]
+layout_mode = 2
+focus_mode = 2
+text = "Shader Demo By: GrayDwarf"
+
+[node name="ColorRect" type="ColorRect" parent="."]
+material = SubResource("2")
+offset_left = 53.0
+offset_top = 151.0
+offset_right = 272.0
+offset_bottom = 366.0
+
+[node name="ShaderControls" type="Node2D" parent="."]
+position = Vector2(331, 22)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ShaderControls"]
+custom_minimum_size = Vector2(400, 200)
+offset_top = 1.0
+offset_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 5
+
+[node name="Option1Controls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/Option1Controls"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Option1Label" type="Label" parent="ShaderControls/VBoxContainer/Option1Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Angle:"
+
+[node name="Option1HSlider" type="HSlider" parent="ShaderControls/VBoxContainer/Option1Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+min_value = -10.0
+max_value = 10.0
+step = 0.001
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="Option1LineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/Option1Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "0"
+max_length = 5
+editable = false
+caret_blink = true
+
+[node name="Option2Controls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/Option2Controls"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Option2Label" type="Label" parent="ShaderControls/VBoxContainer/Option2Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Position:"
+
+[node name="Option2HSlider" type="HSlider" parent="ShaderControls/VBoxContainer/Option2Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+min_value = -1.0
+max_value = 1.0
+step = 0.0
+value = 0.3
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="Option2LineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/Option2Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "0.3"
+max_length = 3
+editable = false
+caret_blink = true
+
+[node name="Option3Controls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/Option3Controls"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Option3Label" type="Label" parent="ShaderControls/VBoxContainer/Option3Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Spread:"
+
+[node name="Option3Slider" type="HSlider" parent="ShaderControls/VBoxContainer/Option3Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+min_value = 0.1
+max_value = 1.0
+step = 0.01
+value = 1.0
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="Option3LineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/Option3Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "0.5"
+max_length = 3
+editable = false
+caret_blink = true
+
+[node name="Option4Controls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/Option4Controls"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Option4Label" type="Label" parent="ShaderControls/VBoxContainer/Option4Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Cutoff:"
+
+[node name="Option4HSlider" type="HSlider" parent="ShaderControls/VBoxContainer/Option4Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+min_value = 0.01
+max_value = 1.0
+step = 0.01
+value = 0.08
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="Option4LineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/Option4Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "0.08"
+max_length = 4
+editable = false
+caret_blink = true
+
+[node name="Option5Controls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/Option5Controls"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Option5Label" type="Label" parent="ShaderControls/VBoxContainer/Option5Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Falloff:"
+
+[node name="Option5HSlider" type="HSlider" parent="ShaderControls/VBoxContainer/Option5Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+min_value = 0.01
+max_value = 1.0
+step = 0.01
+value = 0.5
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="Option5LineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/Option5Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "0.5"
+max_length = 3
+editable = false
+caret_blink = true
+
+[node name="Option6Controls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/Option6Controls"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Option6Label" type="Label" parent="ShaderControls/VBoxContainer/Option6Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 14)
+layout_mode = 2
+text = "Edge Fade:"
+
+[node name="Option6HSlider" type="HSlider" parent="ShaderControls/VBoxContainer/Option6Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+min_value = 0.01
+max_value = 1.0
+step = 0.01
+value = 0.4
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="Option6LineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/Option6Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "0.4"
+max_length = 3
+editable = false
+caret_blink = true
+
+[node name="Option7Controls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/Option7Controls"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Option7Label" type="Label" parent="ShaderControls/VBoxContainer/Option7Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Speed:"
+
+[node name="Option7HSlider" type="HSlider" parent="ShaderControls/VBoxContainer/Option7Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+step = 0.01
+value = 10.0
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="Option7LineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/Option7Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "10"
+max_length = 4
+editable = false
+caret_blink = true
+
+[node name="Option8Controls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/Option8Controls"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Option8Label" type="Label" parent="ShaderControls/VBoxContainer/Option8Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Ray 1 Density:"
+
+[node name="Option8HSlider" type="HSlider" parent="ShaderControls/VBoxContainer/Option8Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+min_value = -100.0
+step = 0.01
+value = 8.0
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="Option8LineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/Option8Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "8"
+max_length = 5
+editable = false
+caret_blink = true
+
+[node name="Option9Controls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/Option9Controls"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Option9Label" type="Label" parent="ShaderControls/VBoxContainer/Option9Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Ray 2 Density:"
+
+[node name="Option9HSlider" type="HSlider" parent="ShaderControls/VBoxContainer/Option9Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+min_value = -100.0
+step = 0.01
+value = 30.0
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="Option9LineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/Option9Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "30"
+max_length = 5
+editable = false
+caret_blink = true
+
+[node name="Option10Controls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/Option10Controls"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Option10Label" type="Label" parent="ShaderControls/VBoxContainer/Option10Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Ray 2 Intensity:"
+
+[node name="Option10HSlider" type="HSlider" parent="ShaderControls/VBoxContainer/Option10Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+min_value = -10.0
+max_value = 10.0
+step = 0.01
+value = 0.3
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="Option10LineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/Option10Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "0.3"
+max_length = 3
+editable = false
+caret_blink = true
+
+[node name="Option11Controls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(300, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/Option11Controls"]
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Option11Label" type="Label" parent="ShaderControls/VBoxContainer/Option11Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Color:"
+
+[node name="Option11Button" type="Button" parent="ShaderControls/VBoxContainer/Option11Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Color Picker"
+
+[node name="Option11LineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/Option11Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "cc967d3e"
+max_length = 10
+editable = false
+caret_blink = true
+
+[node name="Option12Controls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/Option12Controls"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Option12Label" type="Label" parent="ShaderControls/VBoxContainer/Option12Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "HDR:"
+
+[node name="Option12Checkbox" type="CheckBox" parent="ShaderControls/VBoxContainer/Option12Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+
+[node name="Option12LineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/Option12Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "false"
+max_length = 5
+editable = false
+caret_blink = true
+
+[node name="Option13Controls" type="Control" parent="ShaderControls/VBoxContainer"]
+custom_minimum_size = Vector2(400, 32)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ShaderControls/VBoxContainer/Option13Controls"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 0
+offset_right = 219.0
+offset_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Option13Label" type="Label" parent="ShaderControls/VBoxContainer/Option13Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Seed:"
+
+[node name="Option13HSlider" type="HSlider" parent="ShaderControls/VBoxContainer/Option13Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+min_value = -1000.0
+max_value = 1000.0
+value = 5.0
+allow_greater = true
+allow_lesser = true
+ticks_on_borders = true
+
+[node name="Option13LineEdit" type="LineEdit" parent="ShaderControls/VBoxContainer/Option13Controls/HBoxContainer"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+text = "5"
+max_length = 5
+editable = false
+caret_blink = true
+
+[node name="ColorPickerContainer" type="Panel" parent="."]
+visible = false
+self_modulate = Color(0, 0, 0, 1)
+offset_left = 345.0
+offset_top = 66.0
+offset_right = 665.0
+offset_bottom = 541.0
+
+[node name="CloseButton" type="Button" parent="ColorPickerContainer"]
+layout_mode = 0
+offset_left = 324.0
+offset_top = -3.0
+offset_right = 353.0
+offset_bottom = 34.0
+theme_override_fonts/font = SubResource("4")
+text = "X"
+flat = true
+
+[node name="ColorPicker" type="ColorPicker" parent="ColorPickerContainer"]
+layout_mode = 0
+offset_left = 57.0
+offset_top = 33.0
+offset_right = 341.0
+offset_bottom = 490.0
+picker_shape = 1
+
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/Option1Controls/HBoxContainer/Option1HSlider" to="." method="_on_Option1HSlider_value_changed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/Option2Controls/HBoxContainer/Option2HSlider" to="." method="_on_Option2HSlider_value_changed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/Option3Controls/HBoxContainer/Option3Slider" to="." method="_on_Option3Slider_value_changed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/Option4Controls/HBoxContainer/Option4HSlider" to="." method="_on_Option4HSlider_value_changed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/Option5Controls/HBoxContainer/Option5HSlider" to="." method="_on_Option5HSlider_value_changed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/Option6Controls/HBoxContainer/Option6HSlider" to="." method="_on_Option6HSlider_value_changed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/Option7Controls/HBoxContainer/Option7HSlider" to="." method="_on_Option7HSlider_value_changed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/Option8Controls/HBoxContainer/Option8HSlider" to="." method="_on_Option8HSlider_value_changed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/Option9Controls/HBoxContainer/Option9HSlider" to="." method="_on_Option9HSlider_value_changed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/Option10Controls/HBoxContainer/Option10HSlider" to="." method="_on_Option10HSlider_value_changed"]
+[connection signal="pressed" from="ShaderControls/VBoxContainer/Option11Controls/HBoxContainer/Option11Button" to="." method="_on_Option11Button_pressed"]
+[connection signal="pressed" from="ShaderControls/VBoxContainer/Option12Controls/HBoxContainer/Option12Checkbox" to="." method="_on_Option12Checkbox_pressed"]
+[connection signal="value_changed" from="ShaderControls/VBoxContainer/Option13Controls/HBoxContainer/Option13HSlider" to="." method="_on_Option13HSlider_value_changed"]
+[connection signal="pressed" from="ColorPickerContainer/CloseButton" to="." method="_on_CloseButton_pressed"]
+[connection signal="color_changed" from="ColorPickerContainer/ColorPicker" to="." method="_on_ColorPicker_color_changed"]
